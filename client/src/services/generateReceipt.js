@@ -2,10 +2,11 @@ import { PDFDocument, StandardFonts, rgb }from 'pdf-lib';
 import { transliterate as tr } from 'transliteration';
 
 const DATUM = 18;
-const DASHLINE = 12;
+const DASHLINE_MARGIN_BOTTOM = 20;
+const DASHLINE_MARGIN_TOP = 5;
 const PODACI_NAZIV = 16;
 const PODACI_VRIJEDNOST = 24;
-const NARUDZBA = 18;
+const NARUDZBA = 22;
 
 const safeText = (text) => {
   return text ? text.replace("Č", "C")
@@ -109,19 +110,20 @@ export const generateReceipt = async (order) => {
   };
 
   // Add restaurant name (centered)
-  addText('Fast Food Gricko', 20, true, 'center');
+  addText('Fast Food Gricko', 24, true, 'center');
   moveDown(40);
 
   // Add date and time (flex space between)
 
   const { date, time } = splitTimestamp(order.time);
   // Add date (left-aligned) and time (right-aligned)
-  addText(date, 20, false, 'left');
-  addText(time, 20, false, 'right');    
-  moveDown(10);
+  addText(date, 24, false, 'left');
+  addText(time, 24, false, 'right');    
 
   // Add dash line
+  moveDown(DASHLINE_MARGIN_TOP);
   addDashLine();
+  moveDown(DASHLINE_MARGIN_BOTTOM);
 
   // Add order header (centered left)
   addText(order.isDelivery? 'DOSTAVA': "PREUZIMANJE", NARUDZBA, true, 'left');
@@ -138,37 +140,38 @@ export const generateReceipt = async (order) => {
           .reduce((a, b) => a + b, 0)
       : 0;
         const itemPrice = `${parseFloat((item.price - subtractionValue)*item.quantity).toFixed(2)} €`;
-      addText(itemPrice, 20, false, 'right');
-      const itemNameLines = wrapText(itemName, 240, 20, font);
+      addText(itemPrice, 24, false, 'right');
+      const itemNameLines = wrapText(itemName, 220, 24, font);
       itemNameLines.forEach((itemNameLine, index) => {
           const text = index === 0 ? itemNameLine : "      " + itemNameLine;
-          addText(text, 20, false, 'left');
+          addText(text, 24, false, 'left');
           if (index !== itemNameLines.length - 1) {
-              moveDown(20);
+              moveDown(30);
           }
         });
-      moveDown(1);
 
       if (item.selectedExtras)
       {
         moveDown(5);
         Object.entries(item.selectedExtras).map(([extra, value], extraIndex) => {
           moveDown(20);
-          addText(`      - ${extra.split('|')[0]}`, 18, false, 'left');
+          addText(`      - ${extra.split('|')[0]}`, 20, false, 'left');
           console.log("VALUE", value, "QUANTITY", item.quantity);
-            addText(parseFloat(value*item.quantity).toFixed(2) + " €", 18, false, 'right');
+            addText(parseFloat(value*item.quantity).toFixed(2) + " €", 20, false, 'right');
         })
     }
           
       
       // Add dash line between cart items
+      moveDown(DASHLINE_MARGIN_TOP);
       addDashLine();
+      moveDown(DASHLINE_MARGIN_BOTTOM-5);
   });
 
   // Add delivery cost (flex space between)
   if (order.isDelivery) {
-    addText('Dostava', 16, false, 'left');
-    addText(`1.50 €`, 20, false, 'right');
+    addText('Dostava', NARUDZBA, false, 'left');
+    addText(`1.50 €`, 24, false, 'right');
 
     // Add dash line
     addDashLine();
@@ -185,38 +188,44 @@ export const generateReceipt = async (order) => {
   moveDown(10);
 
   // Add delivery details
-  addText(order.isDelivery?'PODACI ZA DOSTAVU:': 'PODACI ZA PREUZIMANJE:', NARUDZBA, true, 'left');
-  moveDown(20);
+  addText(order.isDelivery?'PODACI ZA DOSTAVU:': 'PODACI ZA PREUZIMANJE:', NARUDZBA, false, 'left');
+  moveDown(40);
 
-  addText('Narucitelj:', 16, true, 'left');
-  moveDown(25);
-  const nameLines = wrapText(order.name, 300, 24, font);
+  addText('Narucitelj:', 24, true, 'left');
+  moveDown(30);
+  const nameLines = wrapText(order.name, 300, 28, font);
   nameLines.forEach((nameLine) => {
-      addText(nameLine, 24, false, 'left');
-      moveDown(20);
+      addText(nameLine, 28, false, 'left');
+      moveDown(30);
     });
 
   moveDown(5);
 
-  addText('Broj Mobitela:', 16, true, 'left');
-  moveDown(25);
-  addText(order.phone, 24, false, 'left');
-  moveDown((order.isDelivery || order.note !== "")? 25: 20);
+  addText('Broj Mobitela:', 24, true, 'left');
+  moveDown(30);
+  addText(order.phone, 28, false, 'left');
+  moveDown((order.isDelivery || order.note !== "")? 30: 20);
 
   if (order.isDelivery) {
-    addText('Adresa za dostavu:', 16, true, 'left');
-    moveDown(20);
-    const addressLines = wrapText(`${order.address}, ${order.zone}`, 300, 24, font);
-    addressLines.forEach((addressLine) => {
-      addText(addressLine, 24, false, 'left');
-      moveDown(20);
+    addText('Adresa za dostavu:', 24, true, 'left');
+    moveDown(30);
+    const addressLines = wrapText(`${order.address}, ${order.zone}`, 300, 28, font);
+    addressLines.forEach((addressLine, index) => {
+      addText(addressLine, 28, false, 'left');
+      if (index !== addressLines.length - 1) {
+        moveDown(30);
+      }
+      else{
+        if (order.note !== ""){
+          moveDown(30);
+        }
+      }
     });
   }
 
   if (order.note !== "") {
-    moveDown(10);
-    addText('Napomena:', 16, true, 'left');
-    moveDown(20);
+    addText('Napomena:', 24, true, 'left');
+    moveDown(30);
   
     const noteLines = wrapText(order.note, 300, 24, font); // Adjust width as needed
   
@@ -227,25 +236,17 @@ export const generateReceipt = async (order) => {
   }
 
   // Add dash line
+  moveDown(DASHLINE_MARGIN_TOP);
   addDashLine();
+  moveDown(DASHLINE_MARGIN_BOTTOM-5);
 
   const { date: deadlineDate, time: deadlineTime } = splitTimestamp(order.deadline);
   console.log(deadlineDate, deadlineTime);
   // Add delivery deadline
   addText(order.isDelivery? 'DOSTAVITI DO:': "NAPRAVITI DO:", NARUDZBA, false, 'left');
-  addText(deadlineTime, 24, true, 'right');
-  moveDown(10);
+  addText(deadlineTime, 28, true, 'right');
+  moveDown(DASHLINE_MARGIN_TOP);
   addDashLine();
-
-  // Serialize the PDFDocument to bytes (a Uint8Array)
-  // const pdfBytes = await pdfDoc.save();
-
-  // // Create a Blob from the PDF bytes
-  // const blob = new Blob([pdfBytes], { type: 'application/pdf' });
-  // const url = URL.createObjectURL(blob);
-
-  // // Open the PDF in a new tab
-  // window.open(url, '_blank');
 
   // Serialize the PDFDocument to bytes (a Uint8Array)
 const pdfBytes = await pdfDoc.save();
@@ -253,6 +254,8 @@ const pdfBytes = await pdfDoc.save();
 // Create a Blob from the PDF bytes
 const blob = new Blob([pdfBytes], { type: 'application/pdf' });
 const url = URL.createObjectURL(blob);
+
+  // window.open(url, '_blank');
 
 // Create an iframe to print the PDF
 const iframe = document.createElement('iframe');

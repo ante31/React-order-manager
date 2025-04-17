@@ -10,6 +10,7 @@ export const OrderRow = ({
   handleStatusUpdate,
   showDeleteModal,
   setShowDeleteModal,
+  general,
 }) => {
   const [orderToReject, setOrderToReject] = useState({});
   const [openRow, setOpenRow] = useState(null); // Track which row is open
@@ -204,33 +205,108 @@ export const OrderRow = ({
           </td>
         </tr>
 
-        {/* Collapsible Content */}
+        {/* Unutar Collapse-a */}
         <tr>
           <td colSpan={8} style={{ padding: 0 }}>
             <Collapse in={isOpen}>
-              <div style={{ padding: "1em", paddingLeft: "5em", backgroundColor: "#f9f9f9" }}>
-              {order.cartItems &&
-                order.cartItems.map((item) => (
-                  <div key={item.id}>
-                    <strong>
-                      {item.quantity} x {item.name.split("|")[0]}
-                      {item.size !== 'null' && (
-                        <span style={{ fontWeight: 'lighter' }}> ({item.size})</span>
-                      )}
-                    </strong>
-                    {item.selectedExtras && (
-                      <div style={{ whiteSpace: 'pre-wrap', paddingLeft: '1em' }}>
-                        {Object.entries(item.selectedExtras).map(([extra, quantity], extraIndex) => (
-                          <span key={extraIndex}>
-                            {extra.split('|')[0]}
-                            {extraIndex < Object.entries(item.selectedExtras).length - 1 && ', '}
-                          </span>
-                        ))}
+            <div style={{ padding: "1em", paddingLeft: "5em", paddingRight: "15em", backgroundColor: "#f9f9f9" }}>
+              <div style={{ padding: "1em", backgroundColor: "#f9f9f9" }}>
+                {order.cartItems &&
+                  order.cartItems.map((item) => {
+                    const extrasTotal = item.selectedExtras
+                      ? Object.values(item.selectedExtras).reduce((sum, val) => sum + parseFloat(val || 0), 0)
+                      : 0;
+
+                    return (
+                      <div
+                        key={item.id}
+                        style={{
+                          display: 'flex',
+                          justifyContent: 'space-between', // Ensure names and prices are spaced correctly
+                          alignItems: 'flex-start',
+                          marginBottom: '0.5em',
+                          marginLeft: '1em',
+                        }}
+                      >
+                        <div style={{ flex: 1 }}>
+                          <strong>
+                            {item.quantity} x {item.name.split("|")[0]}
+                            {item.size !== 'null' && (
+                              <span style={{ fontWeight: 'lighter' }}> ({item.size})</span>
+                            )}
+                          </strong>
+                          {item.selectedExtras && (
+                            <div style={{ whiteSpace: 'pre-wrap', paddingLeft: '1em' }}>
+                              {Object.entries(item.selectedExtras).map(([extra, quantity], extraIndex) => (
+                                <span key={extraIndex}>
+                                  {extra.split('|')[0]}
+                                  {extraIndex < Object.entries(item.selectedExtras).length - 1 && ', '}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                        <div style={{ whiteSpace: 'nowrap', textAlign: 'right', flexShrink: 0, marginRight: '1em' }}>
+                          €{item.price.toFixed(2)}
+                          {extrasTotal > 0 && (
+                            <div style={{ whiteSpace: 'pre-wrap' }}>
+                              <span >
+                                €{extrasTotal.toFixed(2)}
+                              </span>
+                            </div>
+                          )}
+                        </div>
                       </div>
-                    )}
+                    );
+                  })}
+
+                {/* Dostava Section */}
+                {order.isDelivery && (
+                <div
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'space-between', // Ensure it aligns correctly
+                    alignItems: 'flex-start',
+                    marginTop: '1em',
+                    marginLeft: '1em',
+                  }}
+                >
+                  <div style={{ flex: 1 }}>
+                    <strong>Dostava</strong>
                   </div>
-                ))}
+                  <div style={{ whiteSpace: 'nowrap', textAlign: 'right', marginRight: '1em' }}>
+                    €{general.deliveryPrice.toFixed(2)}
+                  </div>
+                </div>
+                )}
+
+                {/* Ukupno Section */}
+                <div
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'space-between', // Align names on the left and prices on the right
+                    alignItems: 'flex-start',
+                    marginTop: '1em',
+                    backgroundColor: 'white',
+                    padding: '1em',
+                    borderRadius: '8px',
+                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+                  }}
+                >
+                  <div style={{ flex: 1 }}>
+                    <strong>Ukupno</strong>
+                  </div>
+                  <div style={{ fontWeight: 'bold', whiteSpace: 'nowrap', textAlign: 'right' }}>
+                    €{(order.cartItems.reduce((total, item) => {
+                      const extrasTotal = item.selectedExtras
+                        ? Object.values(item.selectedExtras).reduce((sum, val) => sum + parseFloat(val || 0), 0)
+                        : 0;
+                      return total + item.price + extrasTotal;
+                    }, 0) + (order.isDelivery? general.deliveryPrice: 0)).toFixed(2)}
+                  </div>
+                </div>
               </div>
+            </div>
             </Collapse>
           </td>
         </tr>

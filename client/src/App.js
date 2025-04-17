@@ -3,10 +3,7 @@ import { Button, Card, Form } from 'react-bootstrap'; // Import React Bootstrap 
 import 'bootstrap/dist/css/bootstrap.min.css'; // Import Bootstrap CSS
 import { formatTimeToEuropean } from './services/timeToEuropean';
 import { filterOrders } from './services/filterOrders';
-import { BsCheckLg, BsPrinter } from "react-icons/bs";
 import { backendUrl } from './localhostConf';
-import { generateReceipt } from './services/generateReceipt';
-import { OrderCard, OrderedCard } from './components/OrderCard';
 import { OrderRow } from './components/OrderRow';
 import StartModal from './components/StartModal';
 
@@ -200,7 +197,7 @@ function App() {
       </div>
     <div className="p-4">
       {activeOrders.some(order => order.status === "pending" || order.status === "accepted") ? (
-        <OrderRow activeOrders={activeOrders} colors={colors} handleStatusUpdate={handleStatusUpdate} showDeleteModal={showDeleteModal} setShowDeleteModal={setShowDeleteModal}/>
+        <OrderRow activeOrders={activeOrders} colors={colors} handleStatusUpdate={handleStatusUpdate} showDeleteModal={showDeleteModal} setShowDeleteModal={setShowDeleteModal} general={general}/>
       ) : (
         //className="d-flex align-items-center justify-content-center vh-100"
         <h2 className='p-4'>Nema narudžbi</h2>
