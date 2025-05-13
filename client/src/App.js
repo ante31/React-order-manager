@@ -1,7 +1,6 @@
-import React, { use, useEffect, useState } from 'react';
-import { Button, Card, Form } from 'react-bootstrap'; // Import React Bootstrap components
+import React, { useEffect, useState } from 'react';
+import { Form } from 'react-bootstrap'; // Import React Bootstrap components
 import 'bootstrap/dist/css/bootstrap.min.css'; // Import Bootstrap CSS
-import { formatTimeToEuropean } from './services/timeToEuropean';
 import { filterOrders } from './services/filterOrders';
 import { backendUrl } from './localhostConf';
 import { OrderRow } from './components/OrderRow';
@@ -28,20 +27,17 @@ function App() {
   ]; // Array of 8 colors
 
   const [general, setGeneral] = useState(null);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   
   useEffect(() => {
     const fetchGeneral = async () => {
       try {
-        setLoading(true);
         const response = await fetch(`${backendUrl}/general`);
         const data = await response.json();
         setGeneral(data);
       } catch (err) {
         setError(err.message);
       } finally {
-        setLoading(false);
       }
     };
   
@@ -112,6 +108,7 @@ function App() {
   const activeOrders = filterOrders(orders)
   console.log("Active Orders: ", activeOrders);
 
+  console.log("Error: ", error);
 
   const handleStatusUpdate = async (orderId, status) => {
     try {
