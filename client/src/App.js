@@ -89,8 +89,7 @@ function App() {
     }
   };
   
-  
-
+  // eslint-disable-next-line
   useEffect(() => {
     fetchData(); // Fetch immediately on mount
 
