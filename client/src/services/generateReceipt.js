@@ -1,11 +1,8 @@
 import { PDFDocument, StandardFonts, rgb }from 'pdf-lib';
 import { transliterate as tr } from 'transliteration';
 
-const DATUM = 18;
 const DASHLINE_MARGIN_BOTTOM = 20;
 const DASHLINE_MARGIN_TOP = 5;
-const PODACI_NAZIV = 16;
-const PODACI_VRIJEDNOST = 24;
 const NARUDZBA = 22;
 
 const safeText = (text) => {
