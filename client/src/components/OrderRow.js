@@ -38,7 +38,8 @@ export const OrderRow = ({
     (order) => {
       generateReceipt(order);
     },
-    [activeOrders]
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    []
   );
 
   return (
