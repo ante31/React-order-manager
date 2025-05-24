@@ -100,6 +100,7 @@ function App() {
     }, 30000); // Run every 30 seconds
 
     return () => clearInterval(interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Dependency array to re-fetch on date change
 
 

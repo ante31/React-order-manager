@@ -16,12 +16,12 @@ const safeText = (text) => {
                     .replace("š", "s")
                     .replace("đ", "d")
                     .replace("ž", "z")
-                    .replace(/[^\x00-\x7F]/g, "") : ""; // Removes unsupported characters
+                    .replace(/[^\u0000-\u007F]/g, "") : ""; // Removes unsupported characters
 };
 
 const normalizeText = (text) => {
   try {
-    return text ? tr(text).replace(/[^\x00-\x7F]/g, "") : "";
+    return text ? tr(text).replace(/[^\u0000-\u007F]/g, "") : "";
   } catch (e) {
     console.error("Error while normalizing text:", text, e);
     return "";

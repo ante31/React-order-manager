@@ -38,7 +38,7 @@ export const OrderRow = ({
     (order) => {
       generateReceipt(order);
     },
-    [generateReceipt]
+    [order]
   );
 
   return (
