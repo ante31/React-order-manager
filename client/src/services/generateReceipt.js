@@ -152,7 +152,7 @@ export const generateReceipt = async (order) => {
       if (item.selectedExtras)
       {
         moveDown(5);
-        Object.entries(item.selectedExtras).map(([extra, value], extraIndex) => {
+        Object.entries(item.selectedExtras).forEach(([extra, value], extraIndex) => {
           moveDown(20);
           addText(`      - ${extra.split('|')[0]}`, 20, false, 'left');
           console.log("VALUE", value, "QUANTITY", item.quantity);
