@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Form } from 'react-bootstrap'; // Import React Bootstrap components
 import 'bootstrap/dist/css/bootstrap.min.css'; // Import Bootstrap CSS
 import { filterOrders } from './services/filterOrders';
@@ -192,17 +192,24 @@ function App() {
         </Form.Select>
       </div>
     <div className="p-4">
-      {activeOrders.some(order => order.status === "pending" || order.status === "accepted") ? (
-        <OrderRow activeOrders={activeOrders} colors={colors} handleStatusUpdate={handleStatusUpdate} showDeleteModal={showDeleteModal} setShowDeleteModal={setShowDeleteModal} general={general}/>
-      ) : (
-        //className="d-flex align-items-center justify-content-center vh-100"
-        <h2 className='p-4'>Nema narudžbi</h2>
-      )}
-      <StartModal
-        show={showStartModal}
-        handleClose={() => setShowStartModal(false)}
-      />
-    </div>
+  {activeOrders.some(order => order.status === "pending" || order.status === "accepted") ? (
+    <OrderRow
+      activeOrders={[...activeOrders]}  // reverse here
+      colors={colors}
+      handleStatusUpdate={handleStatusUpdate}
+      showDeleteModal={showDeleteModal}
+      setShowDeleteModal={setShowDeleteModal}
+      general={general}
+    />
+  ) : (
+    <h2 className='p-4'>Nema narudžbi</h2>
+  )}
+  <StartModal
+    show={showStartModal}
+    handleClose={() => setShowStartModal(false)}
+  />
+</div>
+
     </div>
 
   );
