@@ -16,11 +16,13 @@ const safeText = (text) => {
                     .replace("š", "s")
                     .replace("đ", "d")
                     .replace("ž", "z")
+                    // eslint-disable-next-line no-control-regex
                     .replace(/[^\u0000-\u007F]/g, "") : ""; // Removes unsupported characters
 };
 
 const normalizeText = (text) => {
   try {
+    // eslint-disable-next-line no-control-regex
     return text ? tr(text).replace(/[^\u0000-\u007F]/g, "") : "";
   } catch (e) {
     console.error("Error while normalizing text:", text, e);
