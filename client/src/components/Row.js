@@ -238,9 +238,11 @@ const Row = memo(({ order, index, isOpen, toggleCollapse, handleAcceptOrder, han
                   <div style={{ flex: 1 }}>
                     <strong>Dostava</strong>
                   </div>
+                  {general &&
                   <div style={{ whiteSpace: 'nowrap', textAlign: 'right', marginRight: '1em' }}>
                     €{general.deliveryPrice?.toFixed(2)}
                   </div>
+                  }
                 </div>
                 )}
 
@@ -260,6 +262,7 @@ const Row = memo(({ order, index, isOpen, toggleCollapse, handleAcceptOrder, han
                   <div style={{ flex: 1 }}>
                     <strong>Ukupno</strong>
                   </div>
+                  {general &&
                   <div style={{ fontWeight: 'bold', whiteSpace: 'nowrap', textAlign: 'right' }}>
                     €{(order.cartItems.reduce((total, item) => {
                       const extrasTotal = item.selectedExtras
@@ -268,6 +271,7 @@ const Row = memo(({ order, index, isOpen, toggleCollapse, handleAcceptOrder, han
                       return total + item.price + extrasTotal;
                     }, 0) + (order.isDelivery? general.deliveryPrice: 0)).toFixed(2)}
                   </div>
+                  }
                 </div>
               </div>
             </div>
