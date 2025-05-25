@@ -38,7 +38,8 @@ export const OrderRow = ({
     (order) => {
       generateReceipt(order);
     },
-    [order]
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    []
   );
 
   return (
@@ -46,7 +47,7 @@ export const OrderRow = ({
       <Table bordered hover responsive>
         <TableHead />
         {[...activeOrders]
-        .sort((a, b) => new Date(a.time) - new Date(b.time))
+        .sort((a, b) => new Date(b.time) - new Date(a.time))
         .map((order, _, arr) => {
           const reverseIndex = arr.length - 1 - arr.indexOf(order);
           return (

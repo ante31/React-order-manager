@@ -16,11 +16,13 @@ const safeText = (text) => {
                     .replace("š", "s")
                     .replace("đ", "d")
                     .replace("ž", "z")
+                    // eslint-disable-next-line no-control-regex
                     .replace(/[^\u0000-\u007F]/g, "") : ""; // Removes unsupported characters
 };
 
 const normalizeText = (text) => {
   try {
+    // eslint-disable-next-line no-control-regex
     return text ? tr(text).replace(/[^\u0000-\u007F]/g, "") : "";
   } catch (e) {
     console.error("Error while normalizing text:", text, e);
@@ -150,7 +152,7 @@ export const generateReceipt = async (order) => {
       if (item.selectedExtras)
       {
         moveDown(5);
-        Object.entries(item.selectedExtras).map(([extra, value], extraIndex) => {
+        Object.entries(item.selectedExtras).forEach(([extra, value], extraIndex) => {
           moveDown(20);
           addText(`      - ${extra.split('|')[0]}`, 20, false, 'left');
           console.log("VALUE", value, "QUANTITY", item.quantity);

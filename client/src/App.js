@@ -5,26 +5,12 @@ import { filterOrders } from './services/filterOrders';
 import { backendUrl } from './localhostConf';
 import { OrderRow } from './components/OrderRow';
 import StartModal from './components/StartModal';
-
+import playSound from './services/playSound';
 
 function App() {
   const [orders, setOrders] = useState([]);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showStartModal, setShowStartModal] = useState(true);
-  const playSound = () => {
-    const audio = new Audio('/sci-fi.wav');
-    
-    // Attempt to apply attributes for autoplay (though may still require user interaction)
-    audio.autoplay = true;
-    audio.playsInline = true; // Adds playsinline, but mainly for video
-    audio.setAttribute('webkit-playsinline', 'true'); // For webkit-based browsers (Safari, etc.)
-    
-    // Try playing the audio and catch the error if autoplay fails due to user interaction restriction
-    audio.play().catch(error => console.log('Playback error:', error));
-  };
-  const colors = [
-    'red', 'blue', 'green', '#FFF44F', 'purple', 'orange', 'pink', 'brown'
-  ]; // Array of 8 colors
 
   const [general, setGeneral] = useState(null);
   const [error, setError] = useState(null);
@@ -44,10 +30,6 @@ function App() {
     fetchGeneral();
   }, []);
 
-  useEffect(() => {
-    console.log("general: ", general); // Log the general object;
-  }, [general]);
-
   // Get the current date in ISO format for fetch
   const time = new Date().toLocaleString('sv-SE', { timeZone: 'Europe/Zagreb' }).replace(' ', 'T') + '.000Z';
   const date = new Date(time);
@@ -57,7 +39,6 @@ function App() {
   const day = String(date.getDate()).padStart(2, '0');
 
   const [lastHasPending, setLastHasPending] = useState(false);  // Track previous pending state
-  console.log("backendUrl", backendUrl)
 
   const fetchData = async () => {
     try {
@@ -72,7 +53,6 @@ function App() {
   
         // Check if any order's status is 'pending'
         const hasPendingOrder = ordersArray.some(order => order.status === 'pending');
-        console.log("hasPendingOrder: ", hasPendingOrder);
   
         // Only play sound if the status changed (from no pending to pending)
         if (hasPendingOrder && !lastHasPending) {
@@ -94,9 +74,7 @@ function App() {
     fetchData(); // Fetch immediately on mount
 
     const interval = setInterval(() => {
-      console.log('Fetching orders...');
       fetchData();
-      console.log("Updated Orders: ", orders);
     }, 30000); // Run every 30 seconds
 
     return () => clearInterval(interval);
@@ -106,13 +84,10 @@ function App() {
 
 // Filter out orders that have expired (current time > order deadline)
   const activeOrders = filterOrders(orders)
-  console.log("Active Orders: ", activeOrders);
-
-  console.log("Error: ", error);
 
   const handleStatusUpdate = async (orderId, status) => {
     try {
-      console.log(`Updating status for order ${orderId} to ${status}`);
+      //console.log(`Updating status for order ${orderId} to ${status}`);
       const response = await fetch(`${backendUrl}/orders/${orderId}`, {
         method: 'PATCH',
         headers: {
@@ -122,7 +97,7 @@ function App() {
       });
       
       if (response.ok) {
-        console.log(`${status} status updated successfully.`);
+        //console.log(`${status} status updated successfully.`);
         fetchData();  // Optionally re-fetch orders to update UI
       } else {
         console.log('Error updating status');
@@ -196,7 +171,6 @@ function App() {
   {activeOrders.some(order => order.status === "pending" || order.status === "accepted") ? (
     <OrderRow
       activeOrders={[...activeOrders]}  // reverse here
-      colors={colors}
       handleStatusUpdate={handleStatusUpdate}
       showDeleteModal={showDeleteModal}
       setShowDeleteModal={setShowDeleteModal}

@@ -239,7 +239,7 @@ const Row = memo(({ order, index, isOpen, toggleCollapse, handleAcceptOrder, han
                     <strong>Dostava</strong>
                   </div>
                   <div style={{ whiteSpace: 'nowrap', textAlign: 'right', marginRight: '1em' }}>
-                    €{general.deliveryPrice.toFixed(2)}
+                    €{general.deliveryPrice?.toFixed(2)}
                   </div>
                 </div>
                 )}
