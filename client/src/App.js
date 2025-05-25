@@ -23,6 +23,7 @@ function App() {
         setGeneral(data);
       } catch (err) {
         setError(err.message);
+        console.error(error);
       } finally {
       }
     };
