@@ -211,11 +211,11 @@ const Row = memo(({ order, index, isOpen, toggleCollapse, handleAcceptOrder, han
                           )}
                         </div>
                         <div style={{ whiteSpace: 'nowrap', textAlign: 'right', flexShrink: 0, marginRight: '1em' }}>
-                          €{item.price.toFixed(2)}
+                          {(item.quantity * item.price).toFixed(2)} €
                           {extrasTotal > 0 && (
                             <div style={{ whiteSpace: 'pre-wrap' }}>
                               <span >
-                                €{extrasTotal.toFixed(2)}
+                                {(item.quantity * extrasTotal).toFixed(2)} €
                               </span>
                             </div>
                           )}
@@ -264,12 +264,12 @@ const Row = memo(({ order, index, isOpen, toggleCollapse, handleAcceptOrder, han
                   </div>
                   {general &&
                   <div style={{ fontWeight: 'bold', whiteSpace: 'nowrap', textAlign: 'right' }}>
-                    €{(order.cartItems.reduce((total, item) => {
+                    {(order.cartItems.reduce((total, item) => {
                       const extrasTotal = item.selectedExtras
                         ? Object.values(item.selectedExtras).reduce((sum, val) => sum + parseFloat(val || 0), 0)
                         : 0;
-                      return total + item.price + extrasTotal;
-                    }, 0) + (order.isDelivery? general.deliveryPrice: 0)).toFixed(2)}
+                      return total + item.quantity * (item.price + extrasTotal);
+                    }, 0) + (order.isDelivery? general.deliveryPrice: 0)).toFixed(2)} €
                   </div>
                   }
                 </div>
