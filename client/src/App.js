@@ -29,7 +29,6 @@ function App() {
     };
   
     fetchGeneral();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Get the current date in ISO format for fetch
