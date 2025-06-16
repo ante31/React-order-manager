@@ -6,9 +6,17 @@ import { backendUrl } from './localhostConf';
 import { OrderRow } from './components/OrderRow';
 import StartModal from './components/StartModal';
 import playSound from './services/playSound';
+import { Dropdown } from "react-bootstrap";
+import { FiFileText } from "react-icons/fi";
+import { safeFetch } from './services/safeFetch';
+import emailjs from '@emailjs/browser';
 
 function App() {
+  const publicKey = process.env.PUBLIC_KEY;
+  emailjs.init(publicKey);
+
   const [orders, setOrders] = useState([]);
+  const [annotations, setAnnotations] = useState([]);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showStartModal, setShowStartModal] = useState(true);
 
@@ -29,6 +37,7 @@ function App() {
     };
   
     fetchGeneral();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Get the current date in ISO format for fetch
@@ -41,9 +50,34 @@ function App() {
 
   const [lastHasPending, setLastHasPending] = useState(false);  // Track previous pending state
 
+
+  const fetchGeneral = async () => {
+    try {
+      const response = await safeFetch(`${backendUrl}/general`);
+      const data = await response.json();
+      setGeneral(data);
+    } catch (err) {
+      setError(err.message);
+      console.error(error);
+    } finally {
+    }
+  };
+
+  const fetchAnnotations = async () => {
+    try {
+      const response = await safeFetch(`${backendUrl}/annotations`);
+      const data = await response.json();
+      setAnnotations(data);
+    } catch (err) {
+      setError(err.message);
+      console.error(error);
+    } finally {
+    }
+  };
+
   const fetchData = async () => {
     try {
-      const response = await fetch(`${backendUrl}/orders/${year}/${month}/${day}`);
+      const response = await safeFetch(`${backendUrl}/orders/${year}/${month}/${day}`);
       const data = await response.json();
       
       if (data) {
@@ -69,6 +103,12 @@ function App() {
       console.log(error);
     }
   };
+
+  useEffect(() => {
+    fetchGeneral();
+    fetchAnnotations();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   
   // eslint-disable-next-line
   useEffect(() => {
@@ -80,7 +120,7 @@ function App() {
 
     return () => clearInterval(interval);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Dependency array to re-fetch on date change
+  }, []);
 
 
 // Filter out orders that have expired (current time > order deadline)
@@ -89,7 +129,7 @@ function App() {
   const handleStatusUpdate = async (orderId, status) => {
     try {
       //console.log(`Updating status for order ${orderId} to ${status}`);
-      const response = await fetch(`${backendUrl}/orders/${orderId}`, {
+      const response = await safeFetch(`${backendUrl}/orders/${orderId}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -167,15 +207,28 @@ function App() {
             </option>
           ))}
         </Form.Select>
+        <Dropdown className="mx-3">
+    <Dropdown.Toggle variant="secondary" id="dropdown-basic">
+      <FiFileText className="me-2" />
+    </Dropdown.Toggle>
+
+    <Dropdown.Menu>
+      <Dropdown.Item href="#/action-1">Lista</Dropdown.Item>
+      <Dropdown.Item href="#/action-2">Dodaj u listu</Dropdown.Item>
+    </Dropdown.Menu>
+  </Dropdown>
       </div>
     <div className="p-4">
   {activeOrders.some(order => order.status === "pending" || order.status === "accepted") ? (
     <OrderRow
       activeOrders={[...activeOrders]}  // reverse here
+      annotations={annotations}
       handleStatusUpdate={handleStatusUpdate}
       showDeleteModal={showDeleteModal}
       setShowDeleteModal={setShowDeleteModal}
       general={general}
+      fetchData={fetchData}
+      fetchAnnotations={fetchAnnotations}
     />
   ) : (
     <h2 className='p-4'>Nema narudžbi</h2>

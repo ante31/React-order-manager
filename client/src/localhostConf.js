@@ -1,9 +1,12 @@
-const mode = process.env.REACT_APP_MODE;
 
-const localhost = process.env.REACT_APP_LOCALHOST;
-const devPort = process.env.REACT_APP_DEV_PORT;
-const productionUrl = process.env.REACT_APP_PRODUCTION_URL;
+const mode = "production"
+const productionUrl = process.env.REACT_APP_RAILWAY_URL;
+const productionUrlBackup = process.env.REACT_APP_VERCEL_URL;
 
 export const backendUrl = mode === 'production'
   ? productionUrl 
-  : `http://${localhost}:${devPort}`; 
+  : `http://localhost:3000`; 
+
+export const backendUrlBackup = mode === 'production'
+  ? productionUrlBackup 
+  : `http://localhost:3000`; 

@@ -2,10 +2,28 @@ import { Button, Collapse } from "react-bootstrap";
 import { formatTimeToEuropean } from "../services/timeToEuropean";
 import { BsPrinter } from "react-icons/bs";
 import React, { memo } from "react";
+import { FaExclamationTriangle } from "react-icons/fa";
 
+const Row = memo(({ setNumberToRemoveFromBlacklist, setShowRemoveFromBlacklistModal, blackListReason, severity, isBlacklisted, order, index, isOpen, toggleCollapse, handleAcceptOrder, handleRejectOrder, handlePrintReceipt, general, setShowAddToListModal, setListName, setListPhone }) => {
+  const handleAddToList = (order) => {
+    setListName(order.name);
+    setListPhone(order.phone);
+    setShowAddToListModal(true);
+  } 
 
-const Row = memo(({ order, index, isOpen, toggleCollapse, handleAcceptOrder, handleRejectOrder, handlePrintReceipt, general }) => {
-    return (
+  const handleRemoveFromList = (order) => {
+    setNumberToRemoveFromBlacklist(order.phone);
+    setShowRemoveFromBlacklistModal(true);
+    console.log(order);
+  }
+
+  const severityColor = {
+    low: "green",
+    medium: "#ffbf00",
+    high: "red",
+  };
+
+  return (
       <React.Fragment key={index}>
         {/* Collapsible Row Trigger */}
         <tr
@@ -87,8 +105,27 @@ const Row = memo(({ order, index, isOpen, toggleCollapse, handleAcceptOrder, han
               verticalAlign: "middle",
             }}
           >
-            {order.phone}
+            <span style={{ paddingRight: "50px", display: "inline-block" }}>
+              {order.phone}
+            </span>
+
+            {isBlacklisted && (
+              <FaExclamationTriangle
+                style={{
+                  position: "absolute",
+                  top: "50%",
+                  right: "5px",
+                  transform: "translateY(-50%)",
+                  fontSize: "40px",
+                  color: severityColor[severity],
+                }}
+                title={
+                  "kurac"
+                }
+              />
+            )}
           </td>
+
           <td>
             {order.status === "pending" ? (
               <div
@@ -273,6 +310,41 @@ const Row = memo(({ order, index, isOpen, toggleCollapse, handleAcceptOrder, han
                   </div>
                   }
                 </div>
+                {!isBlacklisted? <p onClick={() => handleAddToList(order)} style={{ padding: "0px", margin: "0px", marginLeft: "10px" , marginTop: "20px" , color: "red", cursor: "pointer" }}>Dodaj na listu</p>
+                :(
+                <div style={{ display: "flex", alignItems: "center", marginTop: "20px" }}>
+                  <p style={{
+                    flex: 5,
+                    padding: 3,
+                    margin: 0,
+                    paddingLeft: "14px",
+                    color: severityColor[severity],
+                    wordWrap: "break-word",
+                    whiteSpace: "normal",
+                    border: `1px solid ${severityColor[severity]}`,
+                    borderRadius: "4px",
+                    fontSize: "24px",
+                    minHeight: "48px"
+                  }}>
+                    {blackListReason || <span style={{ color: "#888" }}><i>Bez razloga</i></span>}
+                  </p>
+
+                  <Button 
+                    variant="outline-success"
+                    onClick={() => handleRemoveFromList(order)}
+                    style={{
+                      flex: 1,
+                      marginLeft: "10px",
+                      padding: "4px 8px",
+                      height: "fit-content",
+                      minHeight: "48px"
+                    }}
+                  >
+                    <b>Ukloni s liste</b>
+                  </Button>
+                </div>
+                )
+                }
               </div>
             </div>
             </Collapse>

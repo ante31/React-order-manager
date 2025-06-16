@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Modal, Button, Form, Col, Row } from 'react-bootstrap';
 import { backendUrl } from '../localhostConf';
+import { safeFetch } from '../services/safeFetch';
 
 const StartModal = ({ show, handleClose }) => {
     const [password, setPassword] = React.useState('');
@@ -14,7 +15,7 @@ const StartModal = ({ show, handleClose }) => {
             setError('Unesite lozinku');
             return;
         }
-        fetch(`${backendUrl}/auth/login/${password}`, {
+          safeFetch(`${backendUrl}/auth/login/${password}`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
