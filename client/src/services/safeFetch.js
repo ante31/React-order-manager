@@ -35,6 +35,7 @@ const sendFailureEmail = async (url, error) => {
       console.log(`Primary fetch failed: ${err.message}, trying backup...`);
       console.warn(`Primary fetch failed, trying backup: ${err.message}`);
       //sendFailureEmail(url, err);
+      console.log("sendFailureEmail", sendFailureEmail);
       const resBackup = await fetch(url.replace(backendUrl, backendUrlBackup), options);
       return resBackup;
     }
