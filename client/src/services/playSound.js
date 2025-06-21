@@ -1,5 +1,5 @@
 const playSound = () => {
-  const audio = new Audio('/sci-fi.wav');
+  const audio = new Audio('/notification.wav');
   
   // Attempt to apply attributes for autoplay (though may still require user interaction)
   audio.autoplay = true;
