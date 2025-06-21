@@ -116,7 +116,7 @@ function App() {
 
     const interval = setInterval(() => {
       fetchData();
-    }, 30000); // Run every 30 seconds
+    }, 10000); // Run every 10 seconds
 
     return () => clearInterval(interval);
     // eslint-disable-next-line react-hooks/exhaustive-deps
