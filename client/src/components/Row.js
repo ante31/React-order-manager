@@ -105,7 +105,7 @@ const Row = memo(({ setNumberToRemoveFromBlacklist, setShowRemoveFromBlacklistMo
               verticalAlign: "middle",
             }}
           >
-            <span style={{ paddingRight: "50px", display: "inline-block" }}>
+            <span style={isBlacklisted ? { paddingRight: "50px", display: "inline-block" } : {display: "inline-block"}}>
               {order.phone}
             </span>
 
@@ -120,7 +120,7 @@ const Row = memo(({ setNumberToRemoveFromBlacklist, setShowRemoveFromBlacklistMo
                   color: severityColor[severity],
                 }}
                 title={
-                  "kurac"
+                  `Ovaj broj je na listi s razlogom: ${blackListReason || "Nema razloga"}`
                 }
               />
             )}
@@ -287,11 +287,28 @@ const Row = memo(({ setNumberToRemoveFromBlacklist, setShowRemoveFromBlacklistMo
                   </div>
                   {general &&
                   <div style={{ whiteSpace: 'nowrap', textAlign: 'right', marginRight: '1em' }}>
-                    €{general.deliveryPrice?.toFixed(2)}
+                    {general.deliveryPrice?.toFixed(2)} €
                   </div>
                   }
                 </div>
                 )}
+                {order.note !== "" && (
+  <div
+    style={{
+      display: 'flex',
+      flexDirection: 'row',
+      alignItems: 'flex-start',
+      marginTop: '1em',
+      marginLeft: '1em',
+    }}
+  >
+    <strong style={{ marginRight: '0.5em' }}>Napomena:</strong>
+    <div style={{ color: 'blue', wordBreak: 'break-word', maxWidth: '80%' }}>
+      {order.note}
+    </div>
+  </div>
+)}
+
 
                 {/* Ukupno Section */}
                 <div
