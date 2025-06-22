@@ -246,6 +246,16 @@ const Row = memo(({ setNumberToRemoveFromBlacklist, setShowRemoveFromBlacklistMo
                               ))}
                             </div>
                           )}
+                          {item.selectedDrinks && item.selectedDrinks.length > 0 && (
+                            <div style={{ whiteSpace: 'pre-wrap', paddingLeft: '1em' }}>
+                              {item.selectedDrinks.map((drink, i) => (
+                                <span key={i}>
+                                  {drink.ime}
+                                  {i < item.selectedDrinks.length - 1 && ', '}
+                                </span>
+                              ))}
+                            </div>
+                          )}
                         </div>
                         <div style={{ whiteSpace: 'nowrap', textAlign: 'right', flexShrink: 0, marginRight: '1em' }}>
                           {(item.quantity * item.price).toFixed(2)} €
