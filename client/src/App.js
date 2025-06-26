@@ -7,9 +7,14 @@ import { OrderRow } from './components/OrderRow';
 import StartModal from './components/StartModal';
 import playSound from './services/playSound';
 import { Dropdown } from "react-bootstrap";
-import { FiFileText } from "react-icons/fi";
 import { safeFetch } from './services/safeFetch';
 import emailjs from '@emailjs/browser';
+import { io } from 'socket.io-client';
+
+console.log("Backend URL:", backendUrl);
+const socket = io(backendUrl, {
+  transports: ["websocket"],
+});
 
 function App() {
   const publicKey = process.env.PUBLIC_KEY;
@@ -22,23 +27,6 @@ function App() {
 
   const [general, setGeneral] = useState(null);
   const [error, setError] = useState(null);
-  
-  useEffect(() => {
-    const fetchGeneral = async () => {
-      try {
-        const response = await fetch(`${backendUrl}/general`);
-        const data = await response.json();
-        setGeneral(data);
-      } catch (err) {
-        setError(err.message);
-        console.error(error);
-      } finally {
-      }
-    };
-  
-    fetchGeneral();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   // Get the current date in ISO format for fetch
   const time = new Date().toLocaleString('sv-SE', { timeZone: 'Europe/Zagreb' }).replace(' ', 'T') + '.000Z';
@@ -111,20 +99,63 @@ function App() {
   }, []);
   
   // eslint-disable-next-line
+
   useEffect(() => {
-    fetchData(); // Fetch immediately on mount
+  fetchData();
+  const socket = io(backendUrl, {
+    transports: ['websocket'],
+  });
 
-    const interval = setInterval(() => {
-      fetchData();
-    }, 10000); // Run every 10 seconds
+  socket.on('connect', () => {
+    console.log('✅ [Socket] Spojeno s backendom:', socket.id);
+  });
 
-    return () => clearInterval(interval);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  socket.on('order-added', (newOrder) => {
+    console.log('📥 [Socket] Nova narudžba primljena:', newOrder);
+
+    setOrders(prevOrders => {
+      const updated = [...prevOrders, newOrder];
+      
+      const hasPendingOrder = updated.some(order => order.status === 'pending');
+      if (hasPendingOrder && !lastHasPending) {
+        playSound();
+      }
+
+      setLastHasPending(hasPendingOrder);
+      return updated;
+    });
+  });
+
+  return () => {
+    socket.disconnect();
+  };
+}, []);
+
+const [hasPending, setHasPending] = useState(false);
+
+// 🔁 Reakcija na promjene orders - ažurira status ima li pending narudžbi
+useEffect(() => {
+  const has = orders.some(order => order.status === 'pending');
+  setHasPending(has);
+}, [orders]);
+
+// 🔔 Timer koji svira svakih 10 sekundi ako postoji pending narudžba
+useEffect(() => {
+  const interval = setInterval(() => {
+    if (hasPending) {
+      playSound();
+    }
+  }, 10000);
+
+  return () => clearInterval(interval);
+}, [hasPending]);
+
 
 
 // Filter out orders that have expired (current time > order deadline)
   const activeOrders = filterOrders(orders)
+
+  console.log("Active Orders:", activeOrders);
 
   const handleStatusUpdate = async (orderId, status) => {
     try {
@@ -207,7 +238,7 @@ function App() {
             </option>
           ))}
         </Form.Select>
-        <Dropdown className="mx-3">
+        {/* <Dropdown className="mx-3">
     <Dropdown.Toggle variant="secondary" id="dropdown-basic">
       <FiFileText className="me-2" />
     </Dropdown.Toggle>
@@ -216,7 +247,7 @@ function App() {
       <Dropdown.Item href="#/action-1">Lista</Dropdown.Item>
       <Dropdown.Item href="#/action-2">Dodaj u listu</Dropdown.Item>
     </Dropdown.Menu>
-  </Dropdown>
+  </Dropdown> */}
       </div>
     <div className="p-4">
   {activeOrders.some(order => order.status === "pending" || order.status === "accepted") ? (

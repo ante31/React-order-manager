@@ -258,7 +258,7 @@ const Row = memo(({ setNumberToRemoveFromBlacklist, setShowRemoveFromBlacklistMo
                           )}
                         </div>
                         <div style={{ whiteSpace: 'nowrap', textAlign: 'right', flexShrink: 0, marginRight: '1em' }}>
-                          {(item.quantity * item.price).toFixed(2)} €
+                          {(item.quantity * (item.price - extrasTotal)).toFixed(2)} €
                           {extrasTotal > 0 && (
                             <div style={{ whiteSpace: 'pre-wrap' }}>
                               <span >
@@ -293,21 +293,21 @@ const Row = memo(({ setNumberToRemoveFromBlacklist, setShowRemoveFromBlacklistMo
                 </div>
                 )}
                 {order.note !== "" && (
-  <div
-    style={{
-      display: 'flex',
-      flexDirection: 'row',
-      alignItems: 'flex-start',
-      marginTop: '1em',
-      marginLeft: '1em',
-    }}
-  >
-    <strong style={{ marginRight: '0.5em' }}>Napomena:</strong>
-    <div style={{ color: 'blue', wordBreak: 'break-word', maxWidth: '80%' }}>
-      {order.note}
-    </div>
-  </div>
-)}
+                  <div
+                    style={{
+                      display: 'flex',
+                      flexDirection: 'row',
+                      alignItems: 'flex-start',
+                      marginTop: '1em',
+                      marginLeft: '1em',
+                    }}
+                  >
+                    <strong style={{ marginRight: '0.5em' }}>Napomena:</strong>
+                    <div style={{ color: 'blue', wordBreak: 'break-word', maxWidth: '80%' }}>
+                      {order.note}
+                    </div>
+                  </div>
+                )}
 
 
                 {/* Ukupno Section */}
@@ -332,7 +332,7 @@ const Row = memo(({ setNumberToRemoveFromBlacklist, setShowRemoveFromBlacklistMo
                       const extrasTotal = item.selectedExtras
                         ? Object.values(item.selectedExtras).reduce((sum, val) => sum + parseFloat(val || 0), 0)
                         : 0;
-                      return total + item.quantity * (item.price + extrasTotal);
+                      return total + item.quantity * (item.price);
                     }, 0) + (order.isDelivery? general.deliveryPrice: 0)).toFixed(2)} €
                   </div>
                   }
