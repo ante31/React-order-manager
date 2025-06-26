@@ -6,7 +6,7 @@ import { backendUrl } from './localhostConf';
 import { OrderRow } from './components/OrderRow';
 import StartModal from './components/StartModal';
 import playSound from './services/playSound';
-import { Dropdown } from "react-bootstrap";
+// import { Dropdown } from "react-bootstrap";
 import { safeFetch } from './services/safeFetch';
 import emailjs from '@emailjs/browser';
 import { io } from 'socket.io-client';
@@ -102,9 +102,6 @@ function App() {
 
   useEffect(() => {
   fetchData();
-  const socket = io(backendUrl, {
-    transports: ['websocket'],
-  });
 
   socket.on('connect', () => {
     console.log('✅ [Socket] Spojeno s backendom:', socket.id);
