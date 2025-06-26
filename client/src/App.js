@@ -99,7 +99,6 @@ function App() {
   }, []);
   
   // eslint-disable-next-line
-
   useEffect(() => {
   fetchData();
 
@@ -126,6 +125,7 @@ function App() {
   return () => {
     socket.disconnect();
   };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
 }, []);
 
 const [hasPending, setHasPending] = useState(false);

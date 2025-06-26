@@ -329,9 +329,9 @@ const Row = memo(({ setNumberToRemoveFromBlacklist, setShowRemoveFromBlacklistMo
                   {general &&
                   <div style={{ fontWeight: 'bold', whiteSpace: 'nowrap', textAlign: 'right' }}>
                     {(order.cartItems.reduce((total, item) => {
-                      const extrasTotal = item.selectedExtras
-                        ? Object.values(item.selectedExtras).reduce((sum, val) => sum + parseFloat(val || 0), 0)
-                        : 0;
+                      // const extrasTotal = item.selectedExtras
+                      //   ? Object.values(item.selectedExtras).reduce((sum, val) => sum + parseFloat(val || 0), 0)
+                      //   : 0;
                       return total + item.quantity * (item.price);
                     }, 0) + (order.isDelivery? general.deliveryPrice: 0)).toFixed(2)} €
                   </div>
