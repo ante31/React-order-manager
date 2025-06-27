@@ -1,5 +1,5 @@
 
-const mode = "NOproduction"
+const mode = "production"
 const productionUrl = process.env.REACT_APP_RAILWAY_URL;
 const productionUrlBackup = process.env.REACT_APP_VERCEL_URL;
 
