@@ -12,9 +12,7 @@ import emailjs from '@emailjs/browser';
 import { io } from 'socket.io-client';
 
 console.log("Backend URL:", backendUrl);
-const socket = io(backendUrl, {
-  transports: ["websocket"],
-});
+
 
 function App() {
   const publicKey = process.env.PUBLIC_KEY;
@@ -102,9 +100,13 @@ function App() {
   useEffect(() => {
   fetchData();
 
-  socket.on('connect', () => {
-    console.log('✅ [Socket] Spojeno s backendom:', socket.id);
+  const socket = io(backendUrl, {
+    transports: ["websocket"],
   });
+
+  socket.on('connect_error', (err) => {
+  console.error("❌ [Socket] Greška pri spajanju:", err.message);
+});
 
   socket.on('order-added', (newOrder) => {
     console.log('📥 [Socket] Nova narudžba primljena:', newOrder);
