@@ -1,10 +1,11 @@
 import { Button, Collapse } from "react-bootstrap";
 import { formatTimeToEuropean } from "../services/timeToEuropean";
 import { BsPrinter } from "react-icons/bs";
-import React, { memo } from "react";
+import React, { memo, useState } from "react";
 import { FaExclamationTriangle } from "react-icons/fa";
 
 const Row = memo(({ setNumberToRemoveFromBlacklist, setShowRemoveFromBlacklistModal, blackListReason, severity, isBlacklisted, order, index, isOpen, toggleCollapse, handleAcceptOrder, handleRejectOrder, handlePrintReceipt, general, setShowAddToListModal, setListName, setListPhone }) => {
+  const [disabled, setDisabled] = useState(false);
   const handleAddToList = (order) => {
     setListName(order.name);
     setListPhone(order.phone);
@@ -138,6 +139,7 @@ const Row = memo(({ setNumberToRemoveFromBlacklist, setShowRemoveFromBlacklistMo
                 }}
               >
                 <Button
+                  disabled={disabled}
                   style={{
                     flex: 2,
                     color: "green",
@@ -150,6 +152,7 @@ const Row = memo(({ setNumberToRemoveFromBlacklist, setShowRemoveFromBlacklistMo
                   variant="outline-success"
                   onClick={(e) => {
                     e.stopPropagation();
+                    setDisabled(true);
                     handleAcceptOrder(order.id);
                   }}
                 >

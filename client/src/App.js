@@ -105,8 +105,8 @@ function App() {
   });
 
   socket.on('connect_error', (err) => {
-  console.error("❌ [Socket] Greška pri spajanju:", err.message);
-});
+    console.error("❌ [Socket] Greška pri spajanju:", err.message);
+  });
 
   socket.on('order-added', (newOrder) => {
     console.log('📥 [Socket] Nova narudžba primljena:', newOrder);

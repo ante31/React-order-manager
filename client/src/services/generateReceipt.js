@@ -158,6 +158,14 @@ export const generateReceipt = async (order) => {
           console.log("VALUE", value, "QUANTITY", item.quantity);
             addText(parseFloat(value*item.quantity).toFixed(2) + " €", 20, false, 'right');
         })
+      }
+      if (item.selectedDrinks)
+      {
+        moveDown(5);
+        Object.entries(item.selectedDrinks).forEach(([drink, value], extraIndex) => {
+          moveDown(20);
+          addText(`      - ${value.ime}`, 20, false, 'left');
+        })
     }
           
       

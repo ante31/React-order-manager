@@ -25,6 +25,9 @@ export const OrderRow = ({
   const [numberToRemoveFromBlacklist, setNumberToRemoveFromBlacklist] = useState("");
   const [listName, setListName] = useState("");
   const [listPhone, setListPhone] = useState("");
+  const [isRejecting, setIsRejecting] = useState(false);
+
+  console.log("ORDER", activeOrders);
 
   const toggleCollapse = useCallback((index) => {
     setOpenRow((prevOpenRow) => (prevOpenRow === index ? null : index));
@@ -127,9 +130,12 @@ export const OrderRow = ({
       <ConfirmationModal
         show={showRemoveFromBlacklistModal}
         handleClose={() => setShowRemoveFromBlacklistModal(false)}
-        handleConfirm={() => {
-          handleRemoveFromBlacklist(orderToReject.id);
-          setShowRemoveFromBlacklistModal(false);
+        handleConfirm={async () => {
+          if (isRejecting) return;
+          setIsRejecting(true);
+          await handleStatusUpdate(orderToReject.id, "rejected");
+          setIsRejecting(false);
+          setShowDeleteModal(false);
         }}
         title="Potvrda uklanjanja"
         body={`Jeste li sigurni da želite ukloniti ovog gosta s liste?`}
