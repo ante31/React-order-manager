@@ -4,7 +4,7 @@ import { BsPrinter } from "react-icons/bs";
 import React, { memo, useState } from "react";
 import { FaExclamationTriangle } from "react-icons/fa";
 
-const Row = memo(({ setNumberToRemoveFromBlacklist, setShowRemoveFromBlacklistModal, blackListReason, severity, isBlacklisted, order, index, isOpen, toggleCollapse, handleAcceptOrder, handleRejectOrder, handlePrintReceipt, general, setShowAddToListModal, setListName, setListPhone }) => {
+const Row = (({ setNumberToRemoveFromBlacklist, setShowRemoveFromBlacklistModal, blackListReason, severity, isBlacklisted, order, index, isOpen, toggleCollapse, handleAcceptOrder, handleRejectOrder, handlePrintReceipt, general, setShowAddToListModal, setListName, setListPhone }) => {
   const [disabled, setDisabled] = useState(false);
   const handleAddToList = (order) => {
     setListName(order.name);
@@ -17,6 +17,7 @@ const Row = memo(({ setNumberToRemoveFromBlacklist, setShowRemoveFromBlacklistMo
     setShowRemoveFromBlacklistModal(true);
     console.log(order);
   }
+  
 
   const severityColor = {
     low: "green",
@@ -153,6 +154,7 @@ const Row = memo(({ setNumberToRemoveFromBlacklist, setShowRemoveFromBlacklistMo
                   onClick={(e) => {
                     e.stopPropagation();
                     setDisabled(true);
+                    //console.log("not disabled", order.id);
                     handleAcceptOrder(order.id);
                   }}
                 >
@@ -171,7 +173,9 @@ const Row = memo(({ setNumberToRemoveFromBlacklist, setShowRemoveFromBlacklistMo
                   variant="outline-danger"
                   onClick={(e) => {
                     e.stopPropagation();
-                    handleRejectOrder(order);
+                    setDisabled(true);
+                    console.log("not disabled", order.id);
+                    //handleRejectOrder(order);
                   }}
                 >
                   Odbij
