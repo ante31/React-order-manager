@@ -5,8 +5,6 @@ import { useState, useCallback } from "react";
 import Row from "./Row";
 import TableHead from "./TableHead";
 import AddToListModal from './AddToListModal';
-import { backendUrl } from '../localhostConf';
-import { safeFetch } from '../services/safeFetch';
 
 export const OrderRow = ({
   activeOrders,
@@ -23,6 +21,7 @@ export const OrderRow = ({
   const [showAddToListModal, setShowAddToListModal] = useState(false);
   const [showRemoveFromBlacklistModal, setShowRemoveFromBlacklistModal] = useState(false);
   const [numberToRemoveFromBlacklist, setNumberToRemoveFromBlacklist] = useState("");
+  console.log("numberToRemoveFromBlacklist", numberToRemoveFromBlacklist);
   const [listName, setListName] = useState("");
   const [listPhone, setListPhone] = useState("");
   const [isRejecting, setIsRejecting] = useState(false);

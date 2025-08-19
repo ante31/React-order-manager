@@ -106,11 +106,6 @@ function App() {
     socket.on('connect', () => console.log('✅ Socket connected:', socket.id));
     socket.on('connect_error', err => console.error("❌ Socket error:", err.message));
 
-    // Heartbeat svakih 5 sekundi
-    const heartbeat = setInterval(() => {
-      socket.emit('heartbeat', { timestamp: new Date().toISOString() });
-    }, 5000);
-
     // Order added
     socket.on('order-added', (newOrder) => {
       console.log('📥 Nova narudžba:', newOrder);
@@ -133,6 +128,7 @@ function App() {
       window.removeEventListener("beforeunload", handleBeforeUnload);
       socket.disconnect();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Emit "frontend-logged-in" kada se modal zatvori, samo jednom
@@ -146,6 +142,7 @@ function App() {
 
   useEffect(() => {
     fetchData();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
 
