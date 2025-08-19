@@ -123,23 +123,22 @@ function App() {
       });
     });
 
-    // Send "frontend-closed" kada se browser/tab zatvori
+  // Emit "frontend-closed" kada se tab/browser zatvori
     const handleBeforeUnload = () => {
-      socket.emit('frontend-closed', { timestamp: new Date().toISOString() });
+      socket.emit("frontend-closed", { timestamp: new Date().toISOString() });
     };
-    window.addEventListener('beforeunload', handleBeforeUnload);
+    window.addEventListener("beforeunload", handleBeforeUnload);
 
     return () => {
-      clearInterval(heartbeat);
-      window.removeEventListener('beforeunload', handleBeforeUnload);
+      window.removeEventListener("beforeunload", handleBeforeUnload);
       socket.disconnect();
     };
   }, []);
 
-  // --- Emit "frontend-logged-in" kada se zatvori modal
+  // Emit "frontend-logged-in" kada se modal zatvori, samo jednom
   useEffect(() => {
     if (!showStartModal && socketRef.current && !loggedInSent.current) {
-      socketRef.current.emit('frontend-logged-in', { timestamp: new Date().toISOString() });
+      socketRef.current.emit("frontend-logged-in", { timestamp: new Date().toISOString() });
       loggedInSent.current = true;
       console.log("Frontend logged in!");
     }

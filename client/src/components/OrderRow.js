@@ -56,24 +56,24 @@ export const OrderRow = ({
     []
   );
 
-  const handleRemoveFromBlacklist = async () => {
-    try {
-      const response = await safeFetch(`${backendUrl}/annotations/${numberToRemoveFromBlacklist}`, {
-        method: 'DELETE',
-      });
+  // const handleRemoveFromBlacklist = async () => {
+  //   try {
+  //     const response = await safeFetch(`${backendUrl}/annotations/${numberToRemoveFromBlacklist}`, {
+  //       method: 'DELETE',
+  //     });
 
-      if (!response.ok) {
-        throw new Error('Failed to remove from blacklist');
-      }
+  //     if (!response.ok) {
+  //       throw new Error('Failed to remove from blacklist');
+  //     }
 
-      console.log('Successfully removed from blacklist');
-      setShowRemoveFromBlacklistModal(false);
-      fetchData();
-      fetchAnnotations();
-    } catch (error) {
-      console.error('Error:', error.message);
-    }
-  };
+  //     console.log('Successfully removed from blacklist');
+  //     setShowRemoveFromBlacklistModal(false);
+  //     fetchData();
+  //     fetchAnnotations();
+  //   } catch (error) {
+  //     console.error('Error:', error.message);
+  //   }
+  // };
 
   console.log("Annotations", annotations);
 
