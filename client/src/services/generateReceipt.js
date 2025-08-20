@@ -2,9 +2,6 @@ import { PDFDocument, StandardFonts, rgb }from 'pdf-lib';
 import { transliterate as tr } from 'transliteration';
 
 const PRORED = 10;
-const FONTSIZE = 10
-const DASHLINE_MARGIN_BOTTOM = 10;
-const DASHLINE_MARGIN_TOP = 5;
 const NARUDZBA = 15;
 
 const safeText = (text) => {
