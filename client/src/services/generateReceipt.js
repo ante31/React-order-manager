@@ -33,7 +33,7 @@ const normalizeText = (text) => {
 export const generateReceipt = async (order) => {
   // Create a new PDF document
   const pdfDoc = await PDFDocument.create();
-  const page = pdfDoc.addPage([300, 2000]);
+  const page = pdfDoc.addPage([227, 2000]);
 
   // Set up fonts
   const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
@@ -137,7 +137,7 @@ export const generateReceipt = async (order) => {
       : 0;
         const itemPrice = `${parseFloat((item.price - subtractionValue)*item.quantity).toFixed(2)} €`;
       addText(itemPrice, 14, false, 'right');
-      const itemNameLines = wrapText(itemName, 180, 14, font);
+      const itemNameLines = wrapText(itemName, 150, 14, font);
       itemNameLines.forEach((itemNameLine, index) => {
           const text = index === 0 ? itemNameLine : "      " + itemNameLine;
           addText(text, 14, false, 'left');
@@ -192,7 +192,7 @@ export const generateReceipt = async (order) => {
 
   addText('Narucitelj:', 14, true, 'left');
   moveDown(18);
-  const nameLines = wrapText(order.name, 240, 18, font);
+  const nameLines = wrapText(order.name, 300, 18, font);
   nameLines.forEach((nameLine) => {
       addText(nameLine, 18, false, 'left');
       moveDown(14);
@@ -208,7 +208,7 @@ export const generateReceipt = async (order) => {
   if (order.isDelivery) {
     addText('Adresa za dostavu:', 14, true, 'left');
     moveDown(18);
-    const addressLines = wrapText(`${order.address}, ${order.zone}`, 240, 18, font);
+    const addressLines = wrapText(`${order.address}, ${order.zone}`, 300, 18, font);
     addressLines.forEach((addressLine, index) => {
       addText(addressLine, 18, false, 'left');
       if (index !== addressLines.length - 1) {
@@ -226,7 +226,7 @@ export const generateReceipt = async (order) => {
     addText('Napomena:', 14, true, 'left');
     moveDown(18);
   
-    const noteLines = wrapText(order.note, 220, 14, font); // Adjust width as needed
+    const noteLines = wrapText(order.note, 300, 14, font); // Adjust width as needed
   
     noteLines.forEach((line) => {
       addText(line, 14, false, 'left');
