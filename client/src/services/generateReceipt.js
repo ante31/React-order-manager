@@ -195,7 +195,7 @@ export const generateReceipt = async (order) => {
 
   addText('Narucitelj:', 14, true, 'left');
   moveDown(18);
-  const nameLines = wrapText(order.name, 300, 18, font);
+  const nameLines = wrapText(order.name, 220, 18, font);
   nameLines.forEach((nameLine) => {
       addText(nameLine, 18, false, 'left');
       moveDown(14);
@@ -211,7 +211,7 @@ export const generateReceipt = async (order) => {
   if (order.isDelivery) {
     addText('Adresa za dostavu:', 14, true, 'left');
     moveDown(18);
-    const addressLines = wrapText(`${order.address}, ${order.zone}`, 300, 18, font);
+    const addressLines = wrapText(`${order.address}, ${order.zone}`, 220, 18, font);
     addressLines.forEach((addressLine, index) => {
       addText(addressLine, 18, false, 'left');
       if (index !== addressLines.length - 1) {
@@ -229,7 +229,7 @@ export const generateReceipt = async (order) => {
     addText('Napomena:', 14, true, 'left');
     moveDown(18);
   
-    const noteLines = wrapText(order.note, 300, 14, font); // Adjust width as needed
+    const noteLines = wrapText(order.note, 220, 14, font); // Adjust width as needed
   
     noteLines.forEach((line) => {
       addText(line, 14, false, 'left');
