@@ -33,7 +33,7 @@ const normalizeText = (text) => {
 export const generateReceipt = async (order) => {
   // Create a new PDF document
   const pdfDoc = await PDFDocument.create();
-  const page = pdfDoc.addPage([250, 2000]);
+  const page = pdfDoc.addPage([300, 2000]);
 
   // Set up fonts
   const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
