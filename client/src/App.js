@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from 'react';
 import { Form } from 'react-bootstrap'; // Import React Bootstrap components
 import 'bootstrap/dist/css/bootstrap.min.css'; // Import Bootstrap CSS
 import { filterOrders } from './services/filterOrders';
-import { backendUrl } from './localhostConf';
+import { backendUrl, backendUrlBackup } from './localhostConf';
 import { OrderRow } from './components/OrderRow';
 import StartModal from './components/StartModal';
 import playSound from './services/playSound';
@@ -10,8 +10,6 @@ import playSound from './services/playSound';
 import { safeFetch } from './services/safeFetch';
 import emailjs from '@emailjs/browser';
 import { io } from 'socket.io-client';
-
-console.log("Backend URL:", backendUrl);
 
 
 function App() {
@@ -35,9 +33,7 @@ function App() {
   const day = String(date.getDate()).padStart(2, '0');
 
   const [lastHasPending, setLastHasPending] = useState(false);  // Track previous pending state
-  const socketRef = useRef(null);        // držimo socket u ref
-  const loggedInSent = useRef(false);    // flag da se frontend-logged-in pošalje samo jednom
-
+  const socketRef = useRef(null);        
 
   const fetchGeneral = async () => {
     try {
@@ -98,58 +94,97 @@ function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   
-  // --- Socket setup ---
-  useEffect(() => {
-    const socket = io(backendUrl, { transports: ["websocket"] });
-    socketRef.current = socket;
+useEffect(() => {
+  let usingBackup = false;
 
-    socket.on('connect', () => console.log('✅ Socket connected:', socket.id));
-    socket.on('connect_error', err => console.error("❌ Socket error:", err.message));
+  const socket = io(backendUrl, { 
+    transports: ["websocket"], 
+    reconnection: true, 
+    reconnectionAttempts: Infinity, 
+    reconnectionDelay: 2000 
+  });
 
-    // Order added
-    socket.on('order-added', (newOrder) => {
-      console.log('📥 Nova narudžba:', newOrder);
-      setOrders(prev => {
-        const updated = [...prev, newOrder];
-        const hasPending = updated.some(o => o.status === 'pending');
-        if (hasPending && !lastHasPending) playSound();
-        setLastHasPending(hasPending);
-        return updated;
-      });
-    });
+  socketRef.current = socket;
 
-  // Emit "frontend-closed" kada se tab/browser zatvori
-    const handleBeforeUnload = () => {
-      socket.emit("frontend-closed", { timestamp: new Date().toISOString() });
-    };
-    window.addEventListener("beforeunload", handleBeforeUnload);
+  const sendLogin = () => {
+    socket.emit("frontend-logged-in", { timestamp: new Date().toISOString() });
+    console.log("📡 Sent frontend-logged-in");
+  };
 
-    return () => {
-      window.removeEventListener("beforeunload", handleBeforeUnload);
-      socket.disconnect();
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  socket.on("connect", () => {
+    console.log("✅ Connected:", socket.id, "via", usingBackup ? "backup" : "primary");
+    sendLogin();
 
-  // Emit "frontend-logged-in" kada se modal zatvori, samo jednom
-  useEffect(() => {
-    if (!showStartModal && socketRef.current && !loggedInSent.current) {
-      socketRef.current.emit("frontend-logged-in", { timestamp: new Date().toISOString() });
-      loggedInSent.current = true;
-      console.log("Frontend logged in!");
+    // Heartbeat
+    if (socket.heartbeatInterval) clearInterval(socket.heartbeatInterval);
+    socket.heartbeatInterval = setInterval(() => {
+      socket.emit("heartbeat", { timestamp: new Date().toISOString() });
+    }, 5000);
+  });
+
+  // Ako je došlo do reconnecta (npr. promjena mreže / IP)
+  socket.io.on("reconnect", (attempt) => {
+    console.log("♻️ Reconnected after", attempt, "tries. Socket:", socket.id);
+    sendLogin();
+  });
+
+  socket.on("connect_error", (err) => {
+    console.error("❌ Socket error:", err.message);
+
+    if (!usingBackup) {
+      console.log("⚠️ Switching to backup URL:", backendUrlBackup);
+      usingBackup = true;
+      socket.io.uri = backendUrlBackup; // promjena url-a
+      socket.io.opts.hostname = undefined;
+      socket.io.opts.port = undefined;
+      socket.connect();
     }
-  }, [showStartModal]);
+  });
+
+  const handleBeforeUnload = () => {
+    socket.emit("frontend-closed", { timestamp: new Date().toISOString() });
+  };
+  window.addEventListener("beforeunload", handleBeforeUnload);
+
+  return () => {
+    if (socket.heartbeatInterval) clearInterval(socket.heartbeatInterval);
+    window.removeEventListener("beforeunload", handleBeforeUnload);
+    socket.disconnect();
+    socketRef.current = null;
+  };
+}, []);
+
+// Listener za order-added
+useEffect(() => {
+  const socket = socketRef.current;
+  if (!socket) return;
+
+  const handleOrderAdded = (newOrder) => {
+    console.log("📥 Nova narudžba:", newOrder);
+    setOrders((prev) => {
+      const updated = [...prev, newOrder];
+      const hasPending = updated.some((o) => o.status === "pending");
+      if (hasPending && !lastHasPending) playSound();
+      setLastHasPending(hasPending);
+      return updated;
+    });
+  };
+
+  socket.on("order-added", handleOrderAdded);
+  return () => {
+    socket.off("order-added", handleOrderAdded);
+  };
+}, []);
 
   useEffect(() => {
     fetchData();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
 
 
 const [hasPending, setHasPending] = useState(false);
 
-// 🔁 Reakcija na promjene orders - ažurira status ima li pending narudžbi
 useEffect(() => {
   const has = orders.some(order => order.status === 'pending');
   setHasPending(has);

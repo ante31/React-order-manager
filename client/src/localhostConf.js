@@ -9,4 +9,4 @@ export const backendUrl = mode === 'production'
 
 export const backendUrlBackup = mode === 'production'
   ? productionUrlBackup
-  : `http://192.168.5.125:3000`;
+  : `http://10.143.15.14:3000`;
