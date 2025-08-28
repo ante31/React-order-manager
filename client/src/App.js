@@ -152,6 +152,7 @@ useEffect(() => {
     socket.disconnect();
     socketRef.current = null;
   };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
 }, []);
 
 // Listener za order-added
@@ -174,6 +175,7 @@ useEffect(() => {
   return () => {
     socket.off("order-added", handleOrderAdded);
   };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
 }, []);
 
   useEffect(() => {
