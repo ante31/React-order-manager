@@ -83,7 +83,7 @@ export const generateReceipt = async (order) => {
       if (align === 'center') {
           adjustedX = (page.getWidth() - textWidth - 30) / 2;
       } else if (align === 'right') {
-          adjustedX = page.getWidth() - textWidth - 50;
+          adjustedX = page.getWidth() - textWidth;
       }
 
       page.drawText(text, {
@@ -208,7 +208,7 @@ export const generateReceipt = async (order) => {
   if (order.isDelivery) {
     addText('Adresa za dostavu:', 14, true, 'left');
     moveDown(18);
-    const addressLines = wrapText(`${order.address}, ${order.zone}`, 300, 18, font);
+    const addressLines = wrapText(`${order.address}, ${order.zone}`, 227, 18, font);
     addressLines.forEach((addressLine, index) => {
       addText(addressLine, 18, false, 'left');
       if (index !== addressLines.length - 1) {
