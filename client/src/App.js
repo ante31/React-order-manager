@@ -99,63 +99,56 @@ useEffect(() => {
   let lastAck = Date.now();
   let watchdog;
 
-  const socket = io(backendUrl, { 
-    transports: ["websocket"], 
-    reconnection: true, 
-    reconnectionAttempts: Infinity, 
-    reconnectionDelay: 2000 
-  });
+  const connectSocket = (url) => {
+    const s = io(url, { 
+      transports: ["websocket"], 
+      reconnection: true, 
+      reconnectionAttempts: Infinity, 
+      reconnectionDelay: 2000 
+    });
 
-  socketRef.current = socket;
+    s.on("connect", () => {
+      console.log("✅ Connected:", s.id, "via", usingBackup ? "backup" : "primary");
+      s.emit("frontend-logged-in", { timestamp: new Date().toISOString() });
+      console.log("📡 Sent frontend-logged-in");
 
-  const sendLogin = () => {
-    socket.emit("frontend-logged-in", { timestamp: new Date().toISOString() });
-    console.log("📡 Sent frontend-logged-in");
-  };
+      if (s.heartbeatInterval) clearInterval(s.heartbeatInterval);
+      s.heartbeatInterval = setInterval(() => {
+        s.emit("heartbeat", { timestamp: new Date().toISOString() });
+      }, 5000);
 
-  const startHeartbeat = () => {
-    if (socket.heartbeatInterval) clearInterval(socket.heartbeatInterval);
-    socket.heartbeatInterval = setInterval(() => {
-      socket.emit("heartbeat", { timestamp: new Date().toISOString() });
-    }, 5000);
-  };
+      clearInterval(watchdog);
+      watchdog = setInterval(() => {
+        if (Date.now() - lastAck > 20000) {
+          console.warn("⚠️ No heartbeat-ack for 20s (still waiting)...");
+        }
+      }, 10000);
+    });
 
-  const startWatchdog = () => {
-    clearInterval(watchdog);
-    watchdog = setInterval(() => {
-      if (Date.now() - lastAck > 20000) {
-        console.warn("⚠️ No heartbeat-ack for 20s, forcing reconnect...");
-        socket.io.reconnect();
+    s.on("heartbeat-ack", () => {
+      lastAck = Date.now();
+    });
+
+    s.io.on("reconnect", (attempt) => {
+      console.log("♻️ Reconnected after", attempt, "tries. Socket:", s.id);
+      s.emit("frontend-logged-in", { timestamp: new Date().toISOString() });
+    });
+
+    s.on("connect_error", (err) => {
+      console.error("❌ Socket error:", err.message);
+      if (!usingBackup) {
+        console.log("⚠️ Switching to backup URL:", backendUrlBackup);
+        usingBackup = true;
+        s.close();
+        socketRef.current = connectSocket(backendUrlBackup);
       }
-    }, 10000);
+    });
+
+    return s;
   };
 
-  socket.on("connect", () => {
-    console.log("✅ Connected:", socket.id, "via", usingBackup ? "backup" : "primary");
-    sendLogin();
-    startHeartbeat();
-    startWatchdog();
-  });
-
-  socket.io.on("reconnect", (attempt) => {
-    console.log("♻️ Reconnected after", attempt, "tries. Socket:", socket.id);
-    sendLogin();
-    startWatchdog(); // reset watchdog nakon reconnecta
-  });
-
-  socket.on("heartbeat-ack", () => {
-    lastAck = Date.now();
-  });
-
-  socket.on("connect_error", (err) => {
-    console.error("❌ Socket error:", err.message);
-    if (!usingBackup) {
-      console.log("⚠️ Switching to backup URL:", backendUrlBackup);
-      usingBackup = true;
-      socket.io.uri = backendUrlBackup;
-      socket.connect();
-    }
-  });
+  const socket = connectSocket(backendUrl);
+  socketRef.current = socket;
 
   const handleBeforeUnload = () => {
     socket.emit("frontend-closed", { timestamp: new Date().toISOString() });
@@ -166,11 +159,12 @@ useEffect(() => {
     clearInterval(watchdog);
     if (socket.heartbeatInterval) clearInterval(socket.heartbeatInterval);
     window.removeEventListener("beforeunload", handleBeforeUnload);
-    socket.disconnect();
+    socket.close();
     socketRef.current = null;
   };
     // eslint-disable-next-line react-hooks/exhaustive-deps
 }, []);
+
 
 // Listener za order-added
 useEffect(() => {
