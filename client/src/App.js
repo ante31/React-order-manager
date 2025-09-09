@@ -125,8 +125,7 @@ useEffect(() => {
     watchdog = setInterval(() => {
       if (Date.now() - lastAck > 20000) {
         console.warn("⚠️ No heartbeat-ack for 20s, forcing reconnect...");
-        socket.disconnect();
-        socket.connect();
+        socket.io.reconnect();
       }
     }, 10000);
   };
