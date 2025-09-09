@@ -173,20 +173,6 @@ useEffect(() => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
 }, []);
 
-  const handleBeforeUnload = () => {
-    socket.emit("frontend-closed", { timestamp: new Date().toISOString() });
-  };
-  window.addEventListener("beforeunload", handleBeforeUnload);
-
-  return () => {
-    if (socket.heartbeatInterval) clearInterval(socket.heartbeatInterval);
-    window.removeEventListener("beforeunload", handleBeforeUnload);
-    socket.disconnect();
-    socketRef.current = null;
-  };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-}, []);
-
 // Listener za order-added
 useEffect(() => {
   const socket = socketRef.current;
