@@ -163,7 +163,8 @@ function App() {
     const cleanup = createSocket(backendUrl);
 
     return () => cleanup();
-  }, [backendUrl, backendUrlBackup]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
 
 // Listener za order-added
