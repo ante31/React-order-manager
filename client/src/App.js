@@ -96,6 +96,8 @@ function App() {
   
 useEffect(() => {
   let usingBackup = false;
+  let lastAck = Date.now();
+  let watchdog;
 
   const socket = io(backendUrl, { 
     transports: ["websocket"], 
@@ -111,35 +113,64 @@ useEffect(() => {
     console.log("📡 Sent frontend-logged-in");
   };
 
-  socket.on("connect", () => {
-    console.log("✅ Connected:", socket.id, "via", usingBackup ? "backup" : "primary");
-    sendLogin();
-
-    // Heartbeat
+  const startHeartbeat = () => {
     if (socket.heartbeatInterval) clearInterval(socket.heartbeatInterval);
     socket.heartbeatInterval = setInterval(() => {
       socket.emit("heartbeat", { timestamp: new Date().toISOString() });
     }, 5000);
+  };
+
+  const startWatchdog = () => {
+    clearInterval(watchdog);
+    watchdog = setInterval(() => {
+      if (Date.now() - lastAck > 20000) {
+        console.warn("⚠️ No heartbeat-ack for 20s, forcing reconnect...");
+        socket.disconnect();
+        socket.connect();
+      }
+    }, 10000);
+  };
+
+  socket.on("connect", () => {
+    console.log("✅ Connected:", socket.id, "via", usingBackup ? "backup" : "primary");
+    sendLogin();
+    startHeartbeat();
+    startWatchdog();
   });
 
-  // Ako je došlo do reconnecta (npr. promjena mreže / IP)
   socket.io.on("reconnect", (attempt) => {
     console.log("♻️ Reconnected after", attempt, "tries. Socket:", socket.id);
     sendLogin();
+    startWatchdog(); // reset watchdog nakon reconnecta
+  });
+
+  socket.on("heartbeat-ack", () => {
+    lastAck = Date.now();
   });
 
   socket.on("connect_error", (err) => {
     console.error("❌ Socket error:", err.message);
-
     if (!usingBackup) {
       console.log("⚠️ Switching to backup URL:", backendUrlBackup);
       usingBackup = true;
-      socket.io.uri = backendUrlBackup; // promjena url-a
-      socket.io.opts.hostname = undefined;
-      socket.io.opts.port = undefined;
+      socket.io.uri = backendUrlBackup;
       socket.connect();
     }
   });
+
+  const handleBeforeUnload = () => {
+    socket.emit("frontend-closed", { timestamp: new Date().toISOString() });
+  };
+  window.addEventListener("beforeunload", handleBeforeUnload);
+
+  return () => {
+    clearInterval(watchdog);
+    if (socket.heartbeatInterval) clearInterval(socket.heartbeatInterval);
+    window.removeEventListener("beforeunload", handleBeforeUnload);
+    socket.disconnect();
+    socketRef.current = null;
+  };
+}, []);
 
   const handleBeforeUnload = () => {
     socket.emit("frontend-closed", { timestamp: new Date().toISOString() });
