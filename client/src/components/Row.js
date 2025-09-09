@@ -175,7 +175,7 @@ const Row = (({ setNumberToRemoveFromBlacklist, setShowRemoveFromBlacklistModal,
                     e.stopPropagation();
                     setDisabled(true);
                     console.log("not disabled", order.id);
-                    //handleRejectOrder(order);
+                    handleRejectOrder(order);
                   }}
                 >
                   Odbij
