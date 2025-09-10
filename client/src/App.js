@@ -94,77 +94,65 @@ function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   
-  useEffect(() => {
-    let usingBackup = false;
+useEffect(() => {
+  const socket = io(backendUrl, {
+    transports: ["websocket"],
+    reconnection: true,
+    reconnectionAttempts: Infinity,
+    reconnectionDelay: 2000,
+  });
 
-    const createSocket = (url) => {
-      const socket = io(url, {
-        transports: ["websocket"],
-        reconnection: true,
-        reconnectionAttempts: Infinity,
-        reconnectionDelay: 2000,
-      });
+  socketRef.current = socket;
 
-      socketRef.current = socket;
+  // Pošalji login kad se spoji
+  const sendLogin = () => {
+    socket.emit("frontend-logged-in", { timestamp: new Date().toISOString() });
+    console.log("📡 Sent frontend-logged-in");
+  };
 
-      // Pošalji login kad se spoji
-      const sendLogin = () => {
-        socket.emit("frontend-logged-in", { timestamp: new Date().toISOString() });
-        console.log("📡 Sent frontend-logged-in");
-      };
+  // Heartbeat
+  const heartbeatInterval = setInterval(() => {
+    if (socket.connected) {
+      socket.emit("heartbeat", { timestamp: new Date().toISOString() });
+    }
+  }, 5000);
 
-      // Heartbeat
-      const heartbeatInterval = setInterval(() => {
-        if (socket.connected) {
-          socket.emit("heartbeat", { timestamp: new Date().toISOString() });
-        }
-      }, 5000);
+  // Socket events
+  socket.on("connect", () => {
+    console.log("✅ Connected:", socket.id);
+    sendLogin();
+  });
 
-      // Socket events
-      socket.on("connect", () => {
-        console.log("✅ Connected:", socket.id, usingBackup ? "(backup)" : "(primary)");
-        sendLogin();
-      });
+  socket.on("heartbeat-ack", () => {
+    console.log("💓 Heartbeat ack received");
+  });
 
-      socket.on("heartbeat-ack", () => {
-        console.log("💓 Heartbeat ack received");
-      });
+  socket.on("connect_error", (err) => {
+    console.error("❌ Socket error:", err.message);
+    // Socket.IO će sam pokušati reconnect
+  });
 
-      socket.on("connect_error", (err) => {
-        console.error("❌ Socket error:", err.message);
-        if (!usingBackup) {
-          console.log("⚠️ Switching to backup URL:", backendUrlBackup);
-          usingBackup = true;
-          socket.disconnect();
-          createSocket(backendUrlBackup);
-        }
-      });
+  socket.on("disconnect", (reason) => {
+    console.warn("⚠️ Socket disconnected:", reason);
+    // Socket.IO će sam pokušati reconnect
+  });
 
-      socket.on("disconnect", (reason) => {
-        console.warn("⚠️ Socket disconnected:", reason);
-        // Socket.IO će automatski reconnectati
-      });
+  // Pošalji frontend-closed na unload
+  const handleBeforeUnload = () => {
+    if (socket.connected) {
+      socket.emit("frontend-closed", { timestamp: new Date().toISOString() });
+    }
+  };
+  window.addEventListener("beforeunload", handleBeforeUnload);
 
-      // Pošalji frontend-closed na unload
-      const handleBeforeUnload = () => {
-        if (socket.connected) {
-          socket.emit("frontend-closed", { timestamp: new Date().toISOString() });
-        }
-      };
-      window.addEventListener("beforeunload", handleBeforeUnload);
+  return () => {
+    clearInterval(heartbeatInterval);
+    window.removeEventListener("beforeunload", handleBeforeUnload);
+    socket.disconnect();
+  };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+}, []);
 
-      return () => {
-        clearInterval(heartbeatInterval);
-        window.removeEventListener("beforeunload", handleBeforeUnload);
-        socket.disconnect();
-      };
-    };
-
-    const cleanup = createSocket(backendUrl);
-
-    return () => cleanup();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
 
 // Listener za order-added
