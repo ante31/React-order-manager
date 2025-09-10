@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from 'react';
 import { Form } from 'react-bootstrap'; // Import React Bootstrap components
 import 'bootstrap/dist/css/bootstrap.min.css'; // Import Bootstrap CSS
 import { filterOrders } from './services/filterOrders';
-import { backendUrl, backendUrlBackup } from './localhostConf';
+import { backendUrl } from './localhostConf';
 import { OrderRow } from './components/OrderRow';
 import StartModal from './components/StartModal';
 import playSound from './services/playSound';
