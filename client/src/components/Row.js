@@ -238,7 +238,16 @@ const Row = (({ setNumberToRemoveFromBlacklist, setShowRemoveFromBlacklistModal,
                       >
                         <div style={{ flex: 1 }}>
                           <strong>
-                            {item.quantity} x {item.name.split("|")[0]}
+                            {item.quantity} x 
+                            {
+                              (() => {
+                                const name = item.name.split("|")[0];
+                                if (name === "Posebna ponuda 1" || name === "Meal Deal 1") return " Pizza Ponuda";
+                                if (name === "Posebna ponuda 2" || name === "Meal Deal 2") return " Hamburger Ponuda";
+                                if (name === "Posebna ponuda 3" || name === "Meal Deal 3") return " Piletina Ponuda";
+                                return " " + name;
+                              })()
+                            }
                             {item.size !== 'null' && (
                               <span style={{ fontWeight: 'lighter' }}> ({item.size})</span>
                             )}
