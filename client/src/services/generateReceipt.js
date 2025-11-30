@@ -15,7 +15,6 @@ const safeText = (text) => {
                     .replace("š", "s")
                     .replace("đ", "d")
                     .replace("ž", "z")
-                    // eslint-disable-next-line no-control-regex
                     .replace(/[^\u0000-\u007F]/g, "") : ""; // Removes unsupported characters
 };
 
@@ -31,15 +30,12 @@ const normalizeText = (text) => {
 
 
 export const generateReceipt = async (order) => {
-  // Create a new PDF document
   const pdfDoc = await PDFDocument.create();
-  const page = pdfDoc.addPage([227, 2000]);
+  const page = pdfDoc.addPage([220, 2000]);
 
-  // Set up fonts
   const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
   const boldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
 
-  // Set up initial coordinates
   let x = 10;
   let y = 1990;
 
@@ -72,7 +68,6 @@ export const generateReceipt = async (order) => {
     };
   };
 
-  // Function to add text to the page
   const addText = (text, size, bold = false, align = 'left') => {
       if (!text.includes("€")) {
         text = normalizeText(text); // Apply normalization
@@ -83,7 +78,7 @@ export const generateReceipt = async (order) => {
       if (align === 'center') {
           adjustedX = (page.getWidth() - textWidth - 30) / 2;
       } else if (align === 'right') {
-          adjustedX = page.getWidth() - textWidth;
+          adjustedX = page.getWidth() - textWidth - 10;
       }
 
       page.drawText(text, {
@@ -99,12 +94,18 @@ export const generateReceipt = async (order) => {
       y -= amount;
   }
 
-  // Function to add a dash line
   const addDashLine = () => {
       moveDown(10);
       const dashLine = '-'.repeat(80);
       addText(dashLine, 12, false, 'center');
       moveDown(20);
+  };
+
+  const getMealDealTranslation = (item) => {
+    if (item === "Posebna ponuda 1" || item === "Meal Deal 1") return " Pizza Ponuda";
+    if (item === "Posebna ponuda 2" || item === "Meal Deal 2") return " Hamburger Ponuda";
+    if (item === "Posebna ponuda 3" || item === "Meal Deal 3") return " Piletina Ponuda";
+    return item;
   };
 
   // Add restaurant name (centered)
@@ -114,25 +115,22 @@ export const generateReceipt = async (order) => {
   // Add date and time (flex space between)
 
   const { date, time } = splitTimestamp(order.time);
-  // Add date (left-aligned) and time (right-aligned)
   addText(date, 14, false, 'left');
   addText(time, 14, false, 'right');    
 
   // Add dash line
   addDashLine();
 
-  // Add order header (centered left)
   addText(order.isDelivery? 'DOSTAVA': "PREUZIMANJE", NARUDZBA, true, 'left');
   moveDown(2 * PRORED);
 
-  // Add cart items (flex space between)
   order.cartItems.forEach(item => {
       const itemName = item.size === "null"
-        ? `${item.quantity} x ${item.name.split("|")[0]}`
+        ? `${item.quantity} x ${getMealDealTranslation(item.name.split("|")[0])}`
         : `${item.quantity} x ${item.name.split("|")[0]} (${item.size})`;
       const subtractionValue = item.selectedExtras 
       ? Object.values(item.selectedExtras)
-          .map(Number) // Pretvara string brojeve u prave brojeve
+          .map(Number) 
           .reduce((a, b) => a + b, 0)
       : 0;
         const itemPrice = `${parseFloat((item.price - subtractionValue)*item.quantity).toFixed(2)} €`;
@@ -165,8 +163,6 @@ export const generateReceipt = async (order) => {
         })
     }
           
-      
-      // Add dash line between cart items
       addDashLine();
   });
 
@@ -226,7 +222,7 @@ export const generateReceipt = async (order) => {
     addText('Napomena:', 14, true, 'left');
     moveDown(18);
   
-    const noteLines = wrapText(order.note, 300, 14, font); // Adjust width as needed
+    const noteLines = wrapText(order.note, 227, 14, font); // Adjust width as needed
   
     noteLines.forEach((line) => {
       addText(line, 14, false, 'left');
@@ -238,7 +234,7 @@ export const generateReceipt = async (order) => {
   addDashLine();
 
   const { date: deadlineDate, time: deadlineTime } = splitTimestamp(order.deadline);
-  console.log(deadlineDate, deadlineTime);
+  console.log(order);
   // Add delivery deadline
   addText(order.isDelivery? 'DOSTAVITI DO:': "NAPRAVITI DO:", NARUDZBA, false, 'left');
   addText(deadlineTime, 16, true, 'right');
