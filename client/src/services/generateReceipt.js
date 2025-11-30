@@ -15,7 +15,7 @@ const safeText = (text) => {
                     .replace("š", "s")
                     .replace("đ", "d")
                     .replace("ž", "z")
-                    .replace(/[^\u0000-\u007F]/g, "") : ""; // Removes unsupported characters
+                    .replace(/[^\u0001-\u007F]/g, "") : ""; 
 };
 
 const normalizeText = (text) => {
@@ -234,7 +234,7 @@ export const generateReceipt = async (order) => {
   addDashLine();
 
   const { date: deadlineDate, time: deadlineTime } = splitTimestamp(order.deadline);
-  console.log(order);
+  console.log(order, deadlineDate);
   // Add delivery deadline
   addText(order.isDelivery? 'DOSTAVITI DO:': "NAPRAVITI DO:", NARUDZBA, false, 'left');
   addText(deadlineTime, 16, true, 'right');
