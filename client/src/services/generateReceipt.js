@@ -15,7 +15,8 @@ const safeText = (text) => {
                     .replace("š", "s")
                     .replace("đ", "d")
                     .replace("ž", "z")
-                    .replace(/[^\u0001-\u007F]/g, "") : ""; 
+                    // POPRAVLJENA LINIJA: Uklanja sve što nije vidljivi ASCII
+                    .replace(/[^ -~]/g, "") : ""; 
 };
 
 const normalizeText = (text) => {
