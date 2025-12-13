@@ -56,12 +56,16 @@ const Row = (({ setNumberToRemoveFromBlacklist, setShowRemoveFromBlacklistModal,
           >
             {formatTimeToEuropean(order.time)}
           </td>
-          <td
+<td
             style={{
               width: "5%",
               position: "relative",
               textAlign: "center",
               verticalAlign: "middle",
+              textDecoration: order.timeOption === "custom" ? "underline" : "none",
+              textDecorationThickness: order.timeOption === "custom" ? "2px" : "none",
+              textDecorationColor: order.timeOption === "custom" ? "red" : "inherit", 
+              color: "inherit", 
             }}
           >
             {formatTimeToEuropean(order.deadline)}
