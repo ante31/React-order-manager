@@ -4,7 +4,7 @@ import { Modal, Button, Form, Col, Row } from 'react-bootstrap';
 import { backendUrl } from '../localhostConf';
 import { safeFetch } from '../services/safeFetch';
 
-const StartModal = ({ show, handleClose }) => {
+const StartModal = ({ show, handleClose, setIsAdmin }) => {
     const [password, setPassword] = React.useState('');
     const [error, setError] = React.useState('');
 
@@ -29,14 +29,20 @@ const StartModal = ({ show, handleClose }) => {
               }
             })
             .then((data) => {
-              console.log(data.message); // "Login successful"
+              // Provjera role-a iz backend odgovora
+              if (data.role === 'admin') {
+                console.log("Welcome Admin");
+                setIsAdmin(true);
+              } else {
+                console.log("Welcome User");
+              }
+
               handleClose();
             })
             .catch((error) => {
-              console.error('Error:', error.message); // Handle errors (e.g., "Incorrect password")
+              console.error('Error:', error.message);
               setError('Pogrešna lozinka');
-            }
-        );
+            });
         
     }
     return (
