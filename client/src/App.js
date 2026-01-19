@@ -20,6 +20,7 @@ function App() {
   const [annotations, setAnnotations] = useState([]);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showStartModal, setShowStartModal] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   const [general, setGeneral] = useState(null);
   const [error, setError] = useState(null);
@@ -33,7 +34,7 @@ function App() {
   const day = String(date.getDate()).padStart(2, '0');
 
   const [lastHasPending, setLastHasPending] = useState(false);  // Track previous pending state
-  const socketRef = useRef(null);        
+  const socketRef = useRef(null);     
 
   const fetchGeneral = async () => {
     try {
@@ -104,12 +105,6 @@ useEffect(() => {
 
   socketRef.current = socket;
 
-  // Pošalji login kad se spoji
-  const sendLogin = () => {
-    socket.emit("frontend-logged-in", { timestamp: new Date().toISOString() });
-    console.log("📡 Sent frontend-logged-in");
-  };
-
   // Heartbeat
   const heartbeatInterval = setInterval(() => {
     if (socket.connected) {
@@ -120,7 +115,6 @@ useEffect(() => {
   // Socket events
   socket.on("connect", () => {
     console.log("✅ Connected:", socket.id);
-    sendLogin();
   });
 
   socket.on("heartbeat-ack", () => {
@@ -153,8 +147,6 @@ useEffect(() => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
 }, []);
 
-
-
 // Listener za order-added
 useEffect(() => {
   const socket = socketRef.current;
@@ -183,7 +175,13 @@ useEffect(() => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-
+  // Pošalji frontend-logged-in nakon logiranja
+  useEffect(() => {
+    if (!showStartModal && !isAdmin && socketRef.current?.connected) {
+      socketRef.current.emit("frontend-logged-in", { timestamp: Date.now() });
+      console.log("📡 Sent login after modal");
+    }
+  }, [showStartModal]);
 
 const [hasPending, setHasPending] = useState(false);
 
@@ -222,8 +220,7 @@ useEffect(() => {
       });
       
       if (response.ok) {
-        //console.log(`${status} status updated successfully.`);
-        fetchData();  // Optionally re-fetch orders to update UI
+        fetchData(); 
       } else {
         console.log('Error updating status');
       }
@@ -291,16 +288,6 @@ useEffect(() => {
             </option>
           ))}
         </Form.Select>
-        {/* <Dropdown className="mx-3">
-    <Dropdown.Toggle variant="secondary" id="dropdown-basic">
-      <FiFileText className="me-2" />
-    </Dropdown.Toggle>
-
-    <Dropdown.Menu>
-      <Dropdown.Item href="#/action-1">Lista</Dropdown.Item>
-      <Dropdown.Item href="#/action-2">Dodaj u listu</Dropdown.Item>
-    </Dropdown.Menu>
-  </Dropdown> */}
       </div>
     <div className="p-4">
   {activeOrders.some(order => order.status === "pending" || order.status === "accepted") ? (
@@ -322,6 +309,7 @@ useEffect(() => {
     handleClose={() => {
       setShowStartModal(false);
     }}
+    setIsAdmin={setIsAdmin}
   />
 </div>
 
