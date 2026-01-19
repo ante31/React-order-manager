@@ -181,7 +181,7 @@ useEffect(() => {
       socketRef.current.emit("frontend-logged-in", { timestamp: Date.now() });
       console.log("📡 Sent login after modal");
     }
-  }, [showStartModal]);
+  }, [showStartModal, isAdmin]);
 
 const [hasPending, setHasPending] = useState(false);
 
