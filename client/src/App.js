@@ -35,6 +35,12 @@ function App() {
 
   const [lastHasPending, setLastHasPending] = useState(false);  // Track previous pending state
   const socketRef = useRef(null);     
+  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
+
+  // 2. handleDateChange samo ažurira state
+  const handleDateChange = (dateString) => {
+    setSelectedDate(dateString);
+  };
 
   const fetchGeneral = async () => {
     try {
@@ -61,31 +67,28 @@ function App() {
   };
 
   const fetchData = async () => {
+    setOrders([]); // nemoj ovo micat, ovo ja za admina kada mijenja datume da mu se prikaže kada nema narudzbi na odreden datum
     try {
-      const response = await safeFetch(`${backendUrl}/orders/${year}/${month}/${day}`);
+      const [y, m, d] = selectedDate.split('-'); // Razbijamo string "2026-01-20"
+      
+      const response = await safeFetch(`${backendUrl}/orders/${y}/${m}/${d}`);
+      
+      if (!response.ok) {
+       setOrders([]); 
+       return;
+    }
       const data = await response.json();
       
-      if (data) {
-        const ordersArray = Object.entries(data).map(([id, order]) => ({
-          id,
-          ...order
-        }));
-  
-        // Check if any order's status is 'pending'
-        const hasPendingOrder = ordersArray.some(order => order.status === 'pending');
-  
-        // Only play sound if the status changed (from no pending to pending)
-        if (hasPendingOrder && !lastHasPending) {
-          playSound();
-        }
-  
-        // Update the lastPending status for the next fetch
-        setLastHasPending(hasPendingOrder);
-  
-        setOrders(ordersArray);
-      }
+      const ordersArray = data ? Object.entries(data).map(([id, order]) => ({ id, ...order })) : [];
+
+      const hasPendingOrder = ordersArray.some(order => order.status === 'pending');
+      if (hasPendingOrder && !lastHasPending) playSound();
+      
+      setLastHasPending(hasPendingOrder);
+      setOrders(ordersArray);
     } catch (error) {
-      console.log(error);
+      console.error("Fetch error:", error);
+      setOrders([]); // Resetiraj ako nema podataka za taj dan
     }
   };
 
@@ -172,8 +175,7 @@ useEffect(() => {
 
   useEffect(() => {
     fetchData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [selectedDate]);
 
   // Pošalji frontend-logged-in nakon logiranja
   useEffect(() => {
@@ -288,6 +290,13 @@ useEffect(() => {
             </option>
           ))}
         </Form.Select>
+        {isAdmin && <Form.Control 
+          type="date"
+          defaultValue={new Date().toISOString().split("T")[0]}
+          className="flex-grow-1 mx-3"
+          max={new Date().toISOString().split("T")[0]}
+          onChange={(e) => handleDateChange(e.target.value)}
+        />}
       </div>
     <div className="p-4">
   {activeOrders.some(order => order.status === "pending" || order.status === "accepted") ? (
