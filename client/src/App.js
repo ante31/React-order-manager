@@ -175,6 +175,7 @@ useEffect(() => {
 
   useEffect(() => {
     fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedDate]);
 
   // Pošalji frontend-logged-in nakon logiranja
