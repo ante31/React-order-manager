@@ -1,4 +1,4 @@
-const TableHead = () => {
+const OrderTableHead = () => {
   return (
     <thead>
       <tr>
@@ -96,4 +96,4 @@ const TableHead = () => {
   )
 }
 
-export default TableHead
+export default OrderTableHead

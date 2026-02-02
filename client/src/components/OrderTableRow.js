@@ -4,7 +4,7 @@ import { BsPrinter } from "react-icons/bs";
 import React, { useState } from "react";
 import { FaExclamationTriangle } from "react-icons/fa";
 
-const Row = (({ setNumberToRemoveFromBlacklist, setShowRemoveFromBlacklistModal, blackListReason, severity, isBlacklisted, order, index, isOpen, toggleCollapse, handleAcceptOrder, handleRejectOrder, handlePrintReceipt, general, setShowAddToListModal, setListName, setListPhone }) => {
+const OrderTableRow = (({ setNumberToRemoveFromBlacklist, setShowRemoveFromBlacklistModal, blackListReason, severity, isBlacklisted, order, index, isOpen, toggleCollapse, handleAcceptOrder, handleRejectOrder, handlePrintReceipt, general, setShowAddToListModal, setListName, setListPhone }) => {
   const [disabled, setDisabled] = useState(false);
   const handleAddToList = (order) => {
     setListName(order.name);
@@ -62,6 +62,10 @@ const Row = (({ setNumberToRemoveFromBlacklist, setShowRemoveFromBlacklistModal,
               position: "relative",
               textAlign: "center",
               verticalAlign: "middle",
+              textDecoration: order.timeOption === "custom" ? "underline" : "none",
+              textDecorationThickness: order.timeOption === "custom" ? "2px" : "none",
+              textDecorationColor: order.timeOption === "custom" ? "red" : "inherit", 
+              color: "inherit", 
             }}
           >
             {formatTimeToEuropean(order.deadline)}
@@ -238,7 +242,16 @@ const Row = (({ setNumberToRemoveFromBlacklist, setShowRemoveFromBlacklistModal,
                       >
                         <div style={{ flex: 1 }}>
                           <strong>
-                            {item.quantity} x {item.name.split("|")[0]}
+                            {item.quantity} x 
+                            {
+                              (() => {
+                                const name = item.name.split("|")[0];
+                                if (name === "Posebna ponuda 1" || name === "Meal Deal 1") return " Pizza Ponuda";
+                                if (name === "Posebna ponuda 2" || name === "Meal Deal 2") return " Hamburger Ponuda";
+                                if (name === "Posebna ponuda 3" || name === "Meal Deal 3") return " Piletina Ponuda";
+                                return " " + name;
+                              })()
+                            }
                             {item.size !== 'null' && (
                               <span style={{ fontWeight: 'lighter' }}> ({item.size})</span>
                             )}
@@ -283,7 +296,7 @@ const Row = (({ setNumberToRemoveFromBlacklist, setShowRemoveFromBlacklistModal,
                 <div
                   style={{
                     display: 'flex',
-                    justifyContent: 'space-between', // Ensure it aligns correctly
+                    justifyContent: 'space-between',
                     alignItems: 'flex-start',
                     marginTop: '1em',
                     marginLeft: '1em',
@@ -321,7 +334,7 @@ const Row = (({ setNumberToRemoveFromBlacklist, setShowRemoveFromBlacklistModal,
                 <div
                   style={{
                     display: 'flex',
-                    justifyContent: 'space-between', // Align names on the left and prices on the right
+                    justifyContent: 'space-between', 
                     alignItems: 'flex-start',
                     marginTop: '1em',
                     backgroundColor: 'white',
@@ -388,4 +401,4 @@ const Row = (({ setNumberToRemoveFromBlacklist, setShowRemoveFromBlacklistModal,
     );
   });
 
-  export default Row;
+  export default OrderTableRow;
