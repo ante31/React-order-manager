@@ -34,7 +34,7 @@ function App() {
 
   useEffect(() => {
     fetchOrders();
-  }, [selectedDate]);
+  }, [selectedDate, fetchOrders]); 
   // eslint-disable-next-line react-hooks/exhaustive-deps
 
 
