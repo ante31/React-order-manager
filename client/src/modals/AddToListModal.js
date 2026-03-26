@@ -49,8 +49,6 @@ const AddToListModal = ({ show, handleClose, title, error, defaultName = '', def
         }
     }, [show, defaultName, defaultPhone]);
 
-    console.log("FORM DATA", formData);
-
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));

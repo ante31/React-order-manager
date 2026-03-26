@@ -25,6 +25,8 @@ const OrderTableRow = (({ setNumberToRemoveFromBlacklist, setShowRemoveFromBlack
     high: "red",
   };
 
+  console.log("rendering row", order);
+
   return (
       <React.Fragment key={index}>
         {/* Collapsible Row Trigger */}
@@ -266,6 +268,16 @@ const OrderTableRow = (({ setNumberToRemoveFromBlacklist, setShowRemoveFromBlack
                               ))}
                             </div>
                           )}
+                          {item.selectedFriesExtras && (
+                            <div style={{ whiteSpace: 'pre-wrap', paddingLeft: '1em' }}>
+                              Na pomfrit: {Object.entries(item.selectedFriesExtras).map(([extra, quantity], extraIndex) => (
+                                <span key={extraIndex}>
+                                  {extra.split('|')[0]}
+                                  {extraIndex < Object.entries(item.selectedFriesExtras).length - 1 && ', '}
+                                </span>
+                              ))}
+                            </div>
+                          )}
                           {item.selectedDrinks && item.selectedDrinks.length > 0 && (
                             <div style={{ whiteSpace: 'pre-wrap', paddingLeft: '1em' }}>
                               {item.selectedDrinks.map((drink, i) => (
@@ -312,6 +324,27 @@ const OrderTableRow = (({ setNumberToRemoveFromBlacklist, setShowRemoveFromBlack
                   }
                 </div>
                 )}
+                {/* Coupon Section */}
+                {order.coupon && (
+                <div
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'flex-start',
+                    marginTop: '1em',
+                    marginLeft: '1em',
+                  }}
+                >
+                  <div style={{ flex: 1 }}>
+                    <strong>Kupon</strong>
+                  </div>
+                  {general &&
+                  <div style={{ whiteSpace: 'nowrap', textAlign: 'right', marginRight: '1em' }}>
+                    -{order.coupon.toFixed(2)} €
+                  </div>
+                  }
+                </div>
+                )}
                 {order.note !== "" && (
                   <div
                     style={{
@@ -353,7 +386,7 @@ const OrderTableRow = (({ setNumberToRemoveFromBlacklist, setShowRemoveFromBlack
                       //   ? Object.values(item.selectedExtras).reduce((sum, val) => sum + parseFloat(val || 0), 0)
                       //   : 0;
                       return total + item.quantity * (item.price);
-                    }, 0) + (order.isDelivery? general.deliveryPrice: 0)).toFixed(2)} €
+                    }, 0) + (order.isDelivery? general.deliveryPrice: 0) - (order.coupon || 0)).toFixed(2)} €
                   </div>
                   }
                 </div>

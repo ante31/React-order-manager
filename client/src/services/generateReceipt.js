@@ -133,6 +133,7 @@ export const generateReceipt = async (order) => {
       ? Object.values(item.selectedExtras)
           .map(Number) 
           .reduce((a, b) => a + b, 0)
+          + (item.selectedFriesExtras ? Object.values(item.selectedFriesExtras).map(Number).reduce((a, b) => a + b, 0) : 0)
       : 0;
         const itemPrice = `${parseFloat((item.price - subtractionValue)*item.quantity).toFixed(2)} €`;
       addText(itemPrice, 14, false, 'right');
@@ -155,6 +156,18 @@ export const generateReceipt = async (order) => {
             addText(parseFloat(value*item.quantity).toFixed(2) + " €", 12, false, 'right');
         })
       }
+      if (item.selectedFriesExtras)
+      {
+        moveDown(5);
+                moveDown(12);
+        addText("      Na pomfrit:", 12, false, 'left');
+        Object.entries(item.selectedFriesExtras).forEach(([extra, value], extraIndex) => {
+          moveDown(12);
+          addText(`      - ${extra.split('|')[0]}`, 12, false, 'left');
+          console.log("VALUE", value, "QUANTITY", item.quantity);
+            addText(parseFloat(value*item.quantity).toFixed(2) + " €", 12, false, 'right');
+        })
+      }
       if (item.selectedDrinks)
       {
         moveDown(5);
@@ -162,7 +175,7 @@ export const generateReceipt = async (order) => {
           moveDown(12);
           addText(`      - ${value.ime}`, 12, false, 'left');
         })
-    }
+      }
           
       addDashLine();
   });

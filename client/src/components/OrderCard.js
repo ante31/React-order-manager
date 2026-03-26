@@ -4,6 +4,7 @@ import { generateReceipt } from "../services/generateReceipt"
 import { BsCheckLg, BsPrinter } from "react-icons/bs"
 
 export const OrderCard = ({ activeOrders, colors, handleStatusUpdate }) => {
+
   return (
     <div 
       style={{
