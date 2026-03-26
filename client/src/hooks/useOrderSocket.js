@@ -39,7 +39,7 @@ export function useOrderSocket({ orders, showStartModal, isAdmin, onOrderAdded }
       window.removeEventListener("beforeunload", handleUnload);
       socket.disconnect();
     };
-  }, [isAdmin]); 
+  }, [isAdmin, onOrderAdded, showStartModal]); 
   // eslint-disable-next-line react-hooks/exhaustive-deps
 
 
