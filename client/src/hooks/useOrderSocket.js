@@ -39,7 +39,9 @@ export function useOrderSocket({ orders, showStartModal, isAdmin, onOrderAdded }
       window.removeEventListener("beforeunload", handleUnload);
       socket.disconnect();
     };
-  }, [isAdmin]); // Re-connect ako se isAdmin promijeni
+  }, [isAdmin]); 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+
 
   // Drugi efekt prati promjenu modala
   useEffect(() => {

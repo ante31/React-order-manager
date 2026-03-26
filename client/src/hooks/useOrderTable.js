@@ -4,10 +4,7 @@ import { safeFetch } from "../services/safeFetch";
 import { generateReceipt } from "../services/generateReceipt";
 
 export function useOrderTable({ handleStatusUpdate, fetchData, fetchAnnotations }) {
-  const [openRowId, setOpenRowId] = useState(null);
   const [orderToReject, setOrderToReject] = useState(null);
-  const [showRejectModal, setShowRejectModal] = useState(false);
-  const [showRemoveModal, setShowRemoveModal] = useState(false);
   const [numberToRemoveFromBlacklist, setNumberToRemoveFromBlacklist] = useState("");
   const [showRemoveFromBlacklistModal, setShowRemoveFromBlacklistModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
