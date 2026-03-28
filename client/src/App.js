@@ -33,20 +33,11 @@ function App() {
   });
 
 useEffect(() => {
-    // 1. Odmah dohvati narudžbe pri promjeni datuma
-    fetchOrders();
-
-    // 2. Postavi interval da osvježava svakih 20 sekundi (Safety Net)
-    const interval = setInterval(() => {
-      console.log("Auto-refreshing orders (20s polling)...");
-      fetchOrders();
-    }, 20000); // 20000ms = 20s
-
-    // 3. OBAVEZNO očisti interval kada se komponenta unmounta ili promijeni datum
-    return () => clearInterval(interval);
+  // Dohvati narudžbe samo kad se promijeni datum
+  fetchOrders();
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedDate]);
+}, [selectedDate]);
 
 
   return (
