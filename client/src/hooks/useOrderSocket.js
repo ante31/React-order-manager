@@ -6,17 +6,28 @@ export function useOrderSocket({ orders, showStartModal, isAdmin, onOrderAdded }
   const socketRef = useRef(null);
 
   useEffect(() => {
-    // Ako je admin, spajamo se samo za "order-added", bez ostalih funkcionalnosti
-    const socket = io(backendUrl, { transports: ["websocket"] });
+    // 1. POPRAVAK: transports uključuje polling i websocket, bez withCredentials
+    // Koristimo direktno backendUrl koji mora biti tvoj Railway URL
+    const socket = io(backendUrl, { 
+      transports: ["polling", "websocket"],
+      upgrade: true,
+      rememberUpgrade: true
+    });
+    
     socketRef.current = socket;
 
     socket.on("connect", () => {
-      console.log("Socket connected:", socket.id);
-      onOrderAdded();
+      console.log("Socket connected to Railway:", socket.id);
+      
       // Ako NIJE admin i modal je zatvoren, javi se odmah pri spajanju
       if (!isAdmin && !showStartModal) {
         socket.emit("frontend-logged-in", { isAdmin, timestamp: new Date().toISOString() });
       }
+    });
+
+    // Dodajemo error logging da točno vidiš ako baci CORS ili 400
+    socket.on("connect_error", (err) => {
+      console.error("Socket connection error:", err.message);
     });
 
     const heartbeat = setInterval(() => {
@@ -28,10 +39,11 @@ export function useOrderSocket({ orders, showStartModal, isAdmin, onOrderAdded }
     socket.on("order-added", onOrderAdded);
 
     const handleUnload = () => {
-      if (!isAdmin) {
+      if (socket.connected && !isAdmin) {
         socket.emit("frontend-closed", { isAdmin, timestamp: new Date().toISOString() });
       }
     };
+    
     window.addEventListener("beforeunload", handleUnload);
 
     return () => {
@@ -40,7 +52,7 @@ export function useOrderSocket({ orders, showStartModal, isAdmin, onOrderAdded }
       socket.disconnect();
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isAdmin]); 
+  }, [isAdmin, backendUrl]); // Dodao backendUrl u dependency da se re-inita ako se promijeni
 
 
   // Drugi efekt prati promjenu modala
@@ -49,4 +61,6 @@ export function useOrderSocket({ orders, showStartModal, isAdmin, onOrderAdded }
       socketRef.current.emit("frontend-logged-in", { isAdmin, timestamp: new Date().toISOString() });
     }
   }, [showStartModal, isAdmin]);
+
+  return socketRef.current;
 }
