@@ -34,7 +34,7 @@ const StartModal = ({ show, handleClose, setIsAdmin }) => {
                 console.log("Welcome Admin");
                 setIsAdmin(true);
               } else {
-                console.log("Welcome User");
+                console.log("Welcome Restaurant");
               }
 
               handleClose();

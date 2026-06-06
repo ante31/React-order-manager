@@ -230,6 +230,9 @@ const OrderTableRow = (({ setNumberToRemoveFromBlacklist, setShowRemoveFromBlack
                     const extrasTotal = item.selectedExtras
                       ? Object.values(item.selectedExtras).reduce((sum, val) => sum + parseFloat(val || 0), 0)
                       : 0;
+                    const friesExtrasTotal = item.selectedFriesExtras
+                      ? Object.values(item.selectedFriesExtras).reduce((sum, val) => sum + parseFloat(val || 0), 0)
+                      : 0;
 
                     return (
                       <div
@@ -290,11 +293,18 @@ const OrderTableRow = (({ setNumberToRemoveFromBlacklist, setShowRemoveFromBlack
                           )}
                         </div>
                         <div style={{ whiteSpace: 'nowrap', textAlign: 'right', flexShrink: 0, marginRight: '1em' }}>
-                          {(item.quantity * (item.price - extrasTotal)).toFixed(2)} €
+                          {(item.quantity * (item.price - extrasTotal - friesExtrasTotal)).toFixed(2)} €
                           {extrasTotal > 0 && (
                             <div style={{ whiteSpace: 'pre-wrap' }}>
                               <span >
                                 {(item.quantity * extrasTotal).toFixed(2)} €
+                              </span>
+                            </div>
+                          )}
+                          {friesExtrasTotal > 0 && (
+                            <div style={{ whiteSpace: 'pre-wrap' }}>
+                              <span >
+                                {(item.quantity * friesExtrasTotal).toFixed(2)} €
                               </span>
                             </div>
                           )}
@@ -362,8 +372,6 @@ const OrderTableRow = (({ setNumberToRemoveFromBlacklist, setShowRemoveFromBlack
                   </div>
                 )}
 
-
-                {/* Ukupno Section */}
                 <div
                   style={{
                     display: 'flex',

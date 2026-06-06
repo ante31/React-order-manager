@@ -95,11 +95,15 @@ export const generateReceipt = async (order) => {
       y -= amount;
   }
 
+  const moveUp = (amount) => {
+      y += amount;
+  }
+
   const addDashLine = () => {
       moveDown(10);
       const dashLine = '-'.repeat(80);
       addText(dashLine, 12, false, 'center');
-      moveDown(20);
+      moveDown(16);
   };
 
   const getMealDealTranslation = (item) => {
@@ -189,16 +193,30 @@ export const generateReceipt = async (order) => {
     addDashLine();
   }
 
+  // Add coupon (flex space between)
+  if (order.coupon) {
+    addText('Kupon', NARUDZBA, false, 'left');
+    addText(`-${parseFloat(order.coupon).toFixed(2)} €`, 14, false, 'right');
+
+    // Add dash line
+    addDashLine();
+  }
+
   // Add total price (flex space between)
   addText('Ukupno', NARUDZBA, true, 'left');
-  addText(`${parseFloat(order.totalPrice).toFixed(2)} €`, 14, true, 'right');
+  if (order.coupon) {
+    addText(`${parseFloat(order.totalPrice - order.coupon).toFixed(2)} €`, 14, true, 'right');
+  }
+  else{
+    addText(`${parseFloat(order.totalPrice).toFixed(2)} €`, 14, true, 'right');
+  }
 
   // Add dash line
   addDashLine();
 
-  // Add delivery details
-  addText(order.isDelivery?'PODACI ZA DOSTAVU:': 'PODACI ZA PREUZIMANJE:', NARUDZBA-4, false, 'left');
-  moveDown(20);
+  // // Add delivery details
+  // addText(order.isDelivery?'PODACI ZA DOSTAVU:': 'PODACI ZA PREUZIMANJE:', NARUDZBA-4, false, 'left');
+  // moveDown(20);
 
   addText('Narucitelj:', 14, true, 'left');
   moveDown(18);
@@ -248,11 +266,14 @@ export const generateReceipt = async (order) => {
   addDashLine();
 
   const { date: deadlineDate, time: deadlineTime } = splitTimestamp(order.deadline);
-  console.log(order, deadlineDate);
+  console.log("DEADLINE", deadlineDate, deadlineTime);
   // Add delivery deadline
   addText(order.isDelivery? 'DOSTAVITI DO:': "NAPRAVITI DO:", NARUDZBA, false, 'left');
   addText(deadlineTime, 16, true, 'right');
   addDashLine();
+
+  moveUp(8);
+  addText('Ovo nije fiskalizirani racun', 10, false, 'left');
 
   // Serialize the PDFDocument to bytes (a Uint8Array)
 const pdfBytes = await pdfDoc.save();

@@ -33,6 +33,12 @@ export function useOrders(selectedDate) {
     }
   };
 
+  useEffect(() => {
+
+    const hasPending = orders.some((o) => o.status === "pending");
+    setHasPending(hasPending);  
+  }, [orders]);
+
     useEffect(() => {
       const interval = setInterval(() => {
         if (hasPending) {
@@ -50,10 +56,10 @@ export function useOrders(selectedDate) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ status, year: y, month: m, day: d }),
     });
-    fetchOrders();
+    // fetchOrders();
   };
 
   const activeOrders = filterOrders(orders);
 
-  return { orders, activeOrders, fetchOrders, handleStatusUpdate };
+  return { activeOrders, fetchOrders, handleStatusUpdate, setOrders };
 }

@@ -2,51 +2,109 @@ import { useEffect, useRef } from "react";
 import { io } from "socket.io-client";
 import { backendUrl } from "../localhostConf";
 
-export function useOrderSocket({ orders, showStartModal, isAdmin, onOrderAdded }) {
+export function useOrderSocket({
+  showStartModal,
+  isAdmin,
+  fetchOrders,
+  setOrders,
+}) {
   const socketRef = useRef(null);
+  const isRegisteredRef = useRef(false);
+  const heartbeatRef = useRef(null);
 
   useEffect(() => {
-    // Ako je admin, spajamo se samo za "order-added", bez ostalih funkcionalnosti
-    const socket = io(backendUrl, { transports: ["websocket"] });
+    const socket = io(backendUrl, {
+      transports: ["polling", "websocket"],
+      withCredentials: true,
+    });
+
     socketRef.current = socket;
+
+    socket.on("order-added", fetchOrders);
+
+  socket.on("order-updated", (updatedOrder) => {
+    setOrders((prev) =>
+      prev.map((order) =>
+        order.id === updatedOrder.id
+          ? { ...order, ...updatedOrder }
+          : order
+      )
+    );
+  });
 
     socket.on("connect", () => {
       console.log("Socket connected:", socket.id);
-      // onOrderAdded();
-      // Ako NIJE admin i modal je zatvoren, javi se odmah pri spajanju
-      if (!isAdmin && !showStartModal) {
-        socket.emit("frontend-logged-in", { isAdmin, timestamp: new Date().toISOString() });
+
+      if (!isRegisteredRef.current) return;
+
+      socket.emit("register", {
+        role: isAdmin ? "admin" : "restaurant",
+        timestamp: new Date().toISOString(),
+      });
+
+      if (!isAdmin) {
+        socket.emit("frontend-logged-in", {
+          timestamp: new Date().toISOString(),
+        });
       }
     });
 
-    const heartbeat = setInterval(() => {
-      if (socket.connected && !isAdmin) {
-        socket.emit("heartbeat", { isAdmin, timestamp: new Date().toISOString() });
-      }
-    }, 5000);
+    const handleBeforeUnload = () => {
+      if (!isRegisteredRef.current) return;
 
-    socket.on("order-added", onOrderAdded);
-
-    const handleUnload = () => {
-      if (!isAdmin) {
-        socket.emit("frontend-closed", { isAdmin, timestamp: new Date().toISOString() });
-      }
+      socket.emit("frontend-closed", {
+        timestamp: new Date().toISOString(),
+      });
     };
-    window.addEventListener("beforeunload", handleUnload);
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
 
     return () => {
-      clearInterval(heartbeat);
-      window.removeEventListener("beforeunload", handleUnload);
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+
+      clearInterval(heartbeatRef.current);
       socket.disconnect();
+      socketRef.current = null;
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isAdmin]); 
+  }, []);
 
-
-  // Drugi efekt prati promjenu modala
+  // 🔥 LOGIN GATE (JEDINI ENTRY POINT ZA REGISTER + HEARTBEAT)
   useEffect(() => {
-    if (socketRef.current?.connected && !isAdmin && !showStartModal) {
-      socketRef.current.emit("frontend-logged-in", { isAdmin, timestamp: new Date().toISOString() });
+    const socket = socketRef.current;
+    if (!socket) return;
+
+    // još nije login
+    if (showStartModal) return;
+
+    // already registered guard
+    if (isRegisteredRef.current) return;
+    isRegisteredRef.current = true;
+
+    const role = isAdmin ? "admin" : "restaurant";
+
+    // 📡 REGISTER (TEK SAD)
+    socket.emit("register", {
+      role,
+      timestamp: new Date().toISOString(),
+    });
+
+    console.log("📡 REGISTER SENT:", role);
+
+    // 🚨 SAMO RESTAURANT IDE DALJE U BACKEND FLOW
+    if (!isAdmin) {
+      socket.emit("frontend-logged-in", {
+        timestamp: new Date().toISOString(),
+      });
+
+      // ❤️ HEARTBEAT (only restaurant, only after login)
+      heartbeatRef.current = setInterval(() => {
+        if (socket.connected) {
+          socket.emit("heartbeat", {
+            timestamp: new Date().toISOString(),
+          });
+        }
+      }, 30000);
     }
   }, [showStartModal, isAdmin]);
 }

@@ -19,17 +19,17 @@ function App() {
   const { general, updateGeneral } = useGeneral();
   const { annotations, refetchAnnotations } = useAnnotations();
   const {
-    orders,
     activeOrders,
     fetchOrders,
     handleStatusUpdate,
+    setOrders,
   } = useOrders(selectedDate);
 
   useOrderSocket({
-    orders,
     showStartModal,
     isAdmin,
-    onOrderAdded: fetchOrders,
+    fetchOrders,
+    setOrders,
   });
 
   useEffect(() => {
@@ -40,7 +40,6 @@ function App() {
 
   return (
     <div>
-      {/* Controls */}
       <div className="d-flex justify-content-center pt-3 px-2">
         <Form.Select
           className="flex-grow-1 mx-3"
