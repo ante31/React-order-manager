@@ -12,9 +12,16 @@ function App() {
   const [showStartModal, setShowStartModal] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
 
-  const [selectedDate, setSelectedDate] = useState(
-    new Date().toISOString().split("T")[0]
-  );
+const today = new Date();
+
+
+const selected = `${today.getFullYear()}-${String(
+  today.getMonth() + 1
+).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
+
+console.log("TODAY", selected);
+
+const [selectedDate, setSelectedDate] = useState(selected);
 
   const { general, updateGeneral } = useGeneral();
   const { annotations, refetchAnnotations } = useAnnotations();
@@ -71,7 +78,7 @@ function App() {
           <Form.Control
             type="date"
             className="flex-grow-1 mx-3"
-            max={new Date().toISOString().split("T")[0]}
+            max={selected}
             value={selectedDate}
             onChange={(e) => setSelectedDate(e.target.value)}
           />
