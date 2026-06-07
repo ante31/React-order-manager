@@ -10,5 +10,5 @@ export const backendUrl =
 
 export const backendUrlBackup =
   mode === "production"
-    ? productionUrl
+    ? productionUrlBackup
     : "https://servertest-production-dc6f.up.railway.app";
