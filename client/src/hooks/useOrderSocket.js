@@ -23,6 +23,7 @@ export function useOrderSocket({
     socket.on("order-added", fetchOrders);
 
   socket.on("order-updated", (updatedOrder) => {
+    console.log("Received order update via socket:", updatedOrder);
     setOrders((prev) =>
       prev.map((order) =>
         order.id === updatedOrder.id
