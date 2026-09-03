@@ -74,38 +74,32 @@ export function useOrderSocket({
   useEffect(() => {
     const socket = socketRef.current;
     if (!socket) return;
-
-    // još nije login
     if (showStartModal) return;
-
-    // already registered guard
     if (isRegisteredRef.current) return;
     isRegisteredRef.current = true;
-
+ 
     const role = isAdmin ? "admin" : "restaurant";
-
-    // 📡 REGISTER (TEK SAD)
-    socket.emit("register", {
-      role,
-      timestamp: new Date().toISOString(),
-    });
-
-    console.log("📡 REGISTER SENT:", role);
-
-    // 🚨 SAMO RESTAURANT IDE DALJE U BACKEND FLOW
-    if (!isAdmin) {
-      socket.emit("frontend-logged-in", {
-        timestamp: new Date().toISOString(),
-      });
-
-      // ❤️ HEARTBEAT (only restaurant, only after login)
-      heartbeatRef.current = setInterval(() => {
-        if (socket.connected) {
-          socket.emit("heartbeat", {
-            timestamp: new Date().toISOString(),
-          });
-        }
-      }, 30000);
+ 
+    const doRegister = () => {
+      socket.emit("register", { role, timestamp: new Date().toISOString() });
+      console.log("📡 REGISTER SENT:", role, "connected:", socket.connected);
+ 
+      if (!isAdmin) {
+        socket.emit("frontend-logged-in", { timestamp: new Date().toISOString() });
+ 
+        clearInterval(heartbeatRef.current);
+        heartbeatRef.current = setInterval(() => {
+          if (socket.connected) {
+            socket.emit("heartbeat", { timestamp: new Date().toISOString() });
+          }
+        }, 30000);
+      }
+    };
+ 
+    if (socket.connected) {
+      doRegister();          // već spojen → šalji odmah
+    } else {
+      socket.once("connect", doRegister);  // još nije → čekaj connect
     }
   }, [showStartModal, isAdmin]);
 }
