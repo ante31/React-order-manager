@@ -19,8 +19,6 @@ const selected = `${today.getFullYear()}-${String(
   today.getMonth() + 1
 ).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
 
-console.log("TODAY", selected);
-
 const [selectedDate, setSelectedDate] = useState(selected);
 
   const { general, updateGeneral } = useGeneral();

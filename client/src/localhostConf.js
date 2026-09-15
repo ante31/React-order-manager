@@ -6,9 +6,9 @@ const productionUrlBackup = process.env.REACT_APP_VERCEL_URL;
 export const backendUrl =
   mode === "production"
     ? productionUrl
-    : "https://servertest-production-dc6f.up.railway.app";
+    : "http://192.168.1.85:3000";
 
 export const backendUrlBackup =
   mode === "production"
     ? productionUrlBackup
-    : "https://servertest-production-dc6f.up.railway.app";
+    : "http://192.168.1.85:3000";
