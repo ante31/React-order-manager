@@ -30,7 +30,7 @@ const normalizeText = (text) => {
 };
 
 
-export const generateReceipt = async (order) => {
+export const generateReceipt = async (order, orderNumber) => {
   const pdfDoc = await PDFDocument.create();
   const page = pdfDoc.addPage([220, 2000]);
 
@@ -38,7 +38,7 @@ export const generateReceipt = async (order) => {
   const boldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
 
   let x = 10;
-  let y = 1990;
+  let y = 1960;
 
   const wrapText = (text, maxWidth, fontSize, font) => {
     const words = safeText(text).split(' ');
@@ -113,8 +113,56 @@ export const generateReceipt = async (order) => {
     return item;
   };
 
-  // Add restaurant name (centered)
+  // Broj narudžbe — desni kut, isti red kao naziv restorana
+  const drawOrderNumber = (yPos) => {
+    if (orderNumber === undefined || orderNumber === null) return;
+    const labelStr = 'br.';
+    const numStr = `${orderNumber + 1}`;
+    const labelSize = 16;
+    const numSize = 22;
+    const labelWidth = font.widthOfTextAtSize(labelStr, labelSize);
+    const numWidth = boldFont.widthOfTextAtSize(numStr, numSize);
+    const totalWidth = labelWidth + 3 + numWidth;
+    const padH = 6;
+    const padV = 2;
+    const boxWidth = totalWidth + padH * 2;
+    const boxHeight = numSize + padV * 2;
+    const startX = page.getWidth() - boxWidth - 10;
+    const boxY = yPos - padV*3;
+
+    // Okvir
+    page.drawRectangle({
+      x: startX,
+      y: boxY,
+      width: boxWidth,
+      height: boxHeight,
+      borderColor: rgb(0, 0, 0),
+      borderWidth: 1.5,
+      color: rgb(1, 1, 1),
+    });
+
+    // "br." — sitno
+    page.drawText(labelStr, {
+      x: startX + padH,
+      y: yPos + 2,
+      size: labelSize,
+      font,
+      color: rgb(0, 0, 0),
+    });
+
+    // broj — bold, veći
+    page.drawText(numStr, {
+      x: startX + padH + labelWidth + 3,
+      y: yPos,
+      size: numSize,
+      font: boldFont,
+      color: rgb(0, 0, 0),
+    });
+  };
+
+  // Add restaurant name (centered) i broj narudžbe desno na istom redu
   addText('Fast Food Gricko', 14, true, 'center');
+  drawOrderNumber(y);
   moveDown(3 * PRORED);
 
   // Add date and time (flex space between)
@@ -266,7 +314,6 @@ export const generateReceipt = async (order) => {
   addDashLine();
 
   const { date: deadlineDate, time: deadlineTime } = splitTimestamp(order.deadline);
-  console.log("DEADLINE", deadlineDate, deadlineTime);
   // Add delivery deadline
   addText(order.isDelivery? 'DOSTAVITI DO:': "NAPRAVITI DO:", NARUDZBA, false, 'left');
   addText(deadlineTime, 16, true, 'right');
