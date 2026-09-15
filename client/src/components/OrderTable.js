@@ -52,6 +52,8 @@ export const OrderTable = ({
               setShowAddToListModal={setShowAddToListModal}
               setListName={setListName}
               setListPhone={setListPhone}
+              disabled={table.disabled}
+              setDisabled={table.setDisabled}
             />
           );
         })}
@@ -60,7 +62,10 @@ export const OrderTable = ({
       {/* Confirmation Modal */}
       <ConfirmationModal
         show={table.showDeleteModal}
-        handleClose={() => table.setShowDeleteModal(false)}
+        handleClose={() => {
+          table.setShowDeleteModal(false)
+          table.setDisabled(false);}
+        }
         handleConfirm={() => {
           handleStatusUpdate(table.orderToReject.id, "rejected");
           table.setShowDeleteModal(false);
