@@ -9,6 +9,7 @@ export function useOrderTable({ handleStatusUpdate, fetchData, fetchAnnotations 
   const [showRemoveFromBlacklistModal, setShowRemoveFromBlacklistModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [openRow, setOpenRow] = useState(null);
+  const [disabled, setDisabled] = useState(false);
 
   const toggleCollapse = useCallback((index) => {
     setOpenRow((prevOpenRow) => (prevOpenRow === index ? null : index));
@@ -24,8 +25,8 @@ export function useOrderTable({ handleStatusUpdate, fetchData, fetchAnnotations 
   
 
   const handlePrintReceipt = useCallback(
-    (order) => {
-      generateReceipt(order);
+    (order, orderNumber) => {
+      generateReceipt(order, orderNumber);
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     []
@@ -64,5 +65,7 @@ export function useOrderTable({ handleStatusUpdate, fetchData, fetchAnnotations 
     setShowRemoveFromBlacklistModal,
     setNumberToRemoveFromBlacklist,
     handleRemoveFromBlacklist,
+    disabled,
+    setDisabled
   };
 }
