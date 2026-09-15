@@ -1,7 +1,7 @@
 import { Button, Collapse } from "react-bootstrap";
 import { formatTimeToEuropean } from "../services/timeToEuropean";
 import { BsPrinter } from "react-icons/bs";
-import React, { useState } from "react";
+import React from "react";
 import { FaExclamationTriangle } from "react-icons/fa";
 
 const OrderTableRow = (({ setNumberToRemoveFromBlacklist, setShowRemoveFromBlacklistModal, blackListReason, severity, isBlacklisted, order, index, isOpen, toggleCollapse, handleAcceptOrder, handleRejectOrder, handlePrintReceipt, general, setShowAddToListModal, setListName, setListPhone, disabled, setDisabled }) => {
