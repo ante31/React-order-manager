@@ -4,8 +4,7 @@ import { BsPrinter } from "react-icons/bs";
 import React, { useState } from "react";
 import { FaExclamationTriangle } from "react-icons/fa";
 
-const OrderTableRow = (({ setNumberToRemoveFromBlacklist, setShowRemoveFromBlacklistModal, blackListReason, severity, isBlacklisted, order, index, isOpen, toggleCollapse, handleAcceptOrder, handleRejectOrder, handlePrintReceipt, general, setShowAddToListModal, setListName, setListPhone }) => {
-  const [disabled, setDisabled] = useState(false);
+const OrderTableRow = (({ setNumberToRemoveFromBlacklist, setShowRemoveFromBlacklistModal, blackListReason, severity, isBlacklisted, order, index, isOpen, toggleCollapse, handleAcceptOrder, handleRejectOrder, handlePrintReceipt, general, setShowAddToListModal, setListName, setListPhone, disabled, setDisabled }) => {
   const handleAddToList = (order) => {
     setListName(order.name);
     setListPhone(order.phone);
@@ -180,7 +179,6 @@ const OrderTableRow = (({ setNumberToRemoveFromBlacklist, setShowRemoveFromBlack
                   onClick={(e) => {
                     e.stopPropagation();
                     setDisabled(true);
-                    console.log("not disabled", order.id);
                     handleRejectOrder(order);
                   }}
                 >
@@ -200,7 +198,7 @@ const OrderTableRow = (({ setNumberToRemoveFromBlacklist, setShowRemoveFromBlack
                 <Button
                   onClick={(e) => {
                     e.stopPropagation();
-                    handlePrintReceipt(order);
+                    handlePrintReceipt(order, index);
                   }}
                   style={{
                     width: "100%",
