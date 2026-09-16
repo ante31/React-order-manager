@@ -4,7 +4,7 @@ import { BsPrinter } from "react-icons/bs";
 import React from "react";
 import { FaExclamationTriangle } from "react-icons/fa";
 
-const OrderTableRow = (({ setNumberToRemoveFromBlacklist, setShowRemoveFromBlacklistModal, blackListReason, severity, isBlacklisted, order, index, isOpen, toggleCollapse, handleAcceptOrder, handleRejectOrder, handlePrintReceipt, general, setShowAddToListModal, setListName, setListPhone, disabled, setDisabled }) => {
+const OrderTableRow = (({ setNumberToRemoveFromBlacklist, setShowRemoveFromBlacklistModal, blackListReason, severity, isBlacklisted, order, index, isOpen, toggleCollapse, handleAcceptOrder, handleRejectOrder, handlePrintReceipt, general, setShowAddToListModal, setListName, setListPhone, isOrderLoading, setOrderLoading }) => {
   const handleAddToList = (order) => {
     setListName(order.name);
     setListPhone(order.phone);
@@ -145,7 +145,7 @@ const OrderTableRow = (({ setNumberToRemoveFromBlacklist, setShowRemoveFromBlack
                 }}
               >
                 <Button
-                  disabled={disabled}
+                  disabled={isOrderLoading(order.id)}
                   style={{
                     flex: 2,
                     color: "green",
@@ -158,9 +158,8 @@ const OrderTableRow = (({ setNumberToRemoveFromBlacklist, setShowRemoveFromBlack
                   variant="outline-success"
                   onClick={(e) => {
                     e.stopPropagation();
-                    setDisabled(true);
-                    //console.log("not disabled", order.id);
-                    handleAcceptOrder(order.id);
+                    setOrderLoading(order.id, true);
+                    handleAcceptOrder(order.id).finally(() => setOrderLoading(order.id, false));
                   }}
                 >
                   Prihvati
@@ -178,7 +177,7 @@ const OrderTableRow = (({ setNumberToRemoveFromBlacklist, setShowRemoveFromBlack
                   variant="outline-danger"
                   onClick={(e) => {
                     e.stopPropagation();
-                    setDisabled(true);
+                    setOrderLoading(order.id, true);
                     handleRejectOrder(order);
                   }}
                 >

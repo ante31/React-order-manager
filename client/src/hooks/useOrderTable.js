@@ -9,7 +9,17 @@ export function useOrderTable({ handleStatusUpdate, fetchData, fetchAnnotations 
   const [showRemoveFromBlacklistModal, setShowRemoveFromBlacklistModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [openRow, setOpenRow] = useState(null);
-  const [disabled, setDisabled] = useState(false);
+  // Per-order loading: { [orderId]: true } dok je zahtjev u tijeku
+  const [loadingOrders, setLoadingOrders] = useState({});
+
+  const setOrderLoading = useCallback((orderId, value) => {
+    setLoadingOrders((prev) => ({ ...prev, [orderId]: value }));
+  }, []);
+
+  const isOrderLoading = useCallback(
+    (orderId) => !!loadingOrders[orderId],
+    [loadingOrders]
+  );
 
   const toggleCollapse = useCallback((index) => {
     setOpenRow((prevOpenRow) => (prevOpenRow === index ? null : index));
@@ -22,7 +32,6 @@ export function useOrderTable({ handleStatusUpdate, fetchData, fetchAnnotations 
     },
     [setShowDeleteModal]
   );
-  
 
   const handlePrintReceipt = useCallback(
     (order, orderNumber) => {
@@ -32,7 +41,7 @@ export function useOrderTable({ handleStatusUpdate, fetchData, fetchAnnotations 
     []
   );
 
-    const handleRemoveFromBlacklist = async () => {
+  const handleRemoveFromBlacklist = async () => {
     try {
       const response = await safeFetch(`${backendUrl}/annotations/${numberToRemoveFromBlacklist}`, {
         method: 'DELETE',
@@ -65,7 +74,7 @@ export function useOrderTable({ handleStatusUpdate, fetchData, fetchAnnotations 
     setShowRemoveFromBlacklistModal,
     setNumberToRemoveFromBlacklist,
     handleRemoveFromBlacklist,
-    disabled,
-    setDisabled
+    isOrderLoading,
+    setOrderLoading,
   };
 }

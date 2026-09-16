@@ -51,7 +51,7 @@ export function useOrders(selectedDate) {
 
   const handleStatusUpdate = async (orderId, status) => {
     const [y, m, d] = selectedDate.split("-");
-    await safeFetch(`${backendUrl}/orders/${orderId}`, {
+    return safeFetch(`${backendUrl}/orders/${orderId}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ status, year: y, month: m, day: d }),
