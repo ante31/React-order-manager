@@ -22,32 +22,19 @@ export function useOrderSocket({
 
     socket.on("order-added", fetchOrders);
 
-  socket.on("order-updated", (updatedOrder) => {
-    console.log("Received order update via socket:", updatedOrder);
-    setOrders((prev) =>
-      prev.map((order) =>
-        order.id === updatedOrder.id
-          ? { ...order, ...updatedOrder }
-          : order
-      )
-    );
-  });
+    socket.on("order-updated", (updatedOrder) => {
+      console.log("Received order update via socket:", updatedOrder);
+      setOrders((prev) =>
+        prev.map((order) =>
+          order.id === updatedOrder.id
+            ? { ...order, ...updatedOrder }
+            : order
+        )
+      );
+    });
 
     socket.on("connect", () => {
       console.log("Socket connected:", socket.id);
-
-      if (!isRegisteredRef.current) return;
-
-      socket.emit("register", {
-        role: isAdmin ? "admin" : "restaurant",
-        timestamp: new Date().toISOString(),
-      });
-
-      if (!isAdmin) {
-        socket.emit("frontend-logged-in", {
-          timestamp: new Date().toISOString(),
-        });
-      }
     });
 
     const handleBeforeUnload = () => {
