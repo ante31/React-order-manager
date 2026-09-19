@@ -316,7 +316,9 @@ export const generateReceipt = async (order, orderNumber) => {
   const { date: deadlineDate, time: deadlineTime } = splitTimestamp(order.deadline);
   console.log("DEADLINE", deadlineDate, deadlineTime);
   // Add delivery deadline
-  addText(order.isDelivery? 'DOSTAVITI DO:': "NAPRAVITI DO:", NARUDZBA, false, 'left');
+  addText(order.timeOption == "custom" ? 
+    order.isDelivery? 'ZAKAZANO ZA DOSTAVU U:': "ZAKAZANO ZA NAPRAVITI U:" : 
+    order.isDelivery? 'DOSTAVITI DO:': "NAPRAVITI DO:", NARUDZBA, false, 'left');
   addText(deadlineTime, 16, true, 'right');
   addDashLine();
 
