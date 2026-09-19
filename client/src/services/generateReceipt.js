@@ -316,10 +316,16 @@ export const generateReceipt = async (order, orderNumber) => {
   const { date: deadlineDate, time: deadlineTime } = splitTimestamp(order.deadline);
   console.log("DEADLINE", deadlineDate, deadlineTime);
   // Add delivery deadline
-  addText(order.timeOption === "custom" ? 
-    order.isDelivery? 'ZAKAZANO ZA DOSTAVU U:': "ZAKAZANO ZA NAPRAVITI U:" : 
-    order.isDelivery? 'DOSTAVITI DO:': "NAPRAVITI DO:", NARUDZBA, false, 'left');
-  addText(deadlineTime, 16, true, 'right');
+  if (order.timeOption === "custom") {
+    // Dug label — prvi red samo label, drugi red "U: HH:mm" centrirano
+    addText(order.isDelivery ? 'ZAKAZANO ZA DOSTAVU' : 'ZAKAZANO ZA PREUZIMANJE', NARUDZBA , false, 'left');
+    moveDown(2 * PRORED);
+    addText(`U: ${deadlineTime}`, 16, true, 'center');
+  } else {
+    // Kratak label — stane u isti red s vremenom
+    addText(order.isDelivery ? 'DOSTAVITI DO:' : 'NAPRAVITI DO:', order.isDelivery ? NARUDZBA : NARUDZBA-1, false, 'left');
+    addText(deadlineTime, 16, true, 'right');
+  }
   addDashLine();
 
   moveUp(8);
